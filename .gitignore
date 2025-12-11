@@ -1,0 +1,39 @@
+# Environment variables (Critical)
+.env
+.env.local
+.env.*.local
+backend/.env
+frontend/.env
+
+# Node / Frontend
+node_modules/
+dist/
+build/
+.output/
+coverage/
+
+# Go / Backend
+backend/bin/
+backend/dist/
+backend/vendor/
+backend/codefuture.db* # Ignore database files
+backend/api_check
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# IDEs
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+.idea/
+.DS_Store
+
+# Logs
+logs
+*.log
+npm-debug.log*
