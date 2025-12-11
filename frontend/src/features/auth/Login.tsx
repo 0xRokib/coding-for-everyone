@@ -1,33 +1,42 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 
 export const Login = () => {
-    const { loginWithGoogle, loginWithGithub, login, error, isLoading } = useAuth();
+    const { loginWithGoogle, loginWithGithub, loginWithEmail, login, error, isLoading } = useAuth();
     const navigate = useNavigate();
     const [searchParams] = useSearchParams();
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
 
     useEffect(() => {
         const token = searchParams.get('token');
         const userId = searchParams.get('user_id');
         const name = searchParams.get('name');
-        const email = searchParams.get('email'); // Ideally passed back too, but user object constructs locally or refetches.
+        const emailParam = searchParams.get('email');
         
         if (token) {
-            // Construct a partial user object or just rely on what we have. 
-            // The context `login` expects a User object.
-            // For now, we'll create a user object from params. 
-            // In a real app, we might want to fetch /me with the token.
             const user = {
                 id: Number(userId) || 0,
                 name: name || 'User',
-                email: email || '', // Might be missing
+                email: emailParam || '',
             };
             
             login(token, user);
             navigate('/');
         }
     }, [searchParams, login, navigate]);
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        try {
+            await loginWithEmail(email, password);
+            navigate('/');
+        } catch (err) {
+            // Error is handled in context
+            console.error(err);
+        }
+    };
 
     return (
         <div className="min-h-screen w-full flex bg-[#0B0F19] text-white font-sans selection:bg-brand-500/30">
@@ -134,7 +143,7 @@ export const Login = () => {
                     )}
 
                     {/* Form */}
-                    <form className="space-y-5">
+                    <form className="space-y-5" onSubmit={handleSubmit}>
                         <div className="space-y-1.5">
                             <label className="block text-sm font-medium text-slate-300 ml-1">Email address</label>
                             <div className="relative group">
@@ -147,6 +156,9 @@ export const Login = () => {
                                     type="email" 
                                     className="w-full bg-[#131B2C] border border-slate-800 rounded-xl py-3.5 pl-11 pr-4 text-white placeholder:text-slate-600 focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 outline-none transition-all font-sans"
                                     placeholder="name@company.com"
+                                    value={email}
+                                    onChange={(e) => setEmail(e.target.value)}
+                                    required
                                 />
                             </div>
                         </div>
@@ -166,12 +178,15 @@ export const Login = () => {
                                     type="password" 
                                     className="w-full bg-[#131B2C] border border-slate-800 rounded-xl py-3.5 pl-11 pr-4 text-white placeholder:text-slate-600 focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 outline-none transition-all font-sans"
                                     placeholder="••••••••"
+                                    value={password}
+                                    onChange={(e) => setPassword(e.target.value)}
+                                    required
                                 />
                             </div>
                         </div>
 
-                        <button className="w-full bg-brand-600 hover:bg-brand-500 text-white font-semibold py-3.5 rounded-xl transition-all shadow-[0_0_20px_-5px_rgba(79,70,229,0.3)] hover:shadow-[0_0_25px_-5px_rgba(79,70,229,0.5)] hover:scale-[1.01] active:scale-[0.98]">
-                            Sign In
+                        <button disabled={isLoading} className="w-full disabled:opacity-50 disabled:cursor-not-allowed bg-brand-600 hover:bg-brand-500 text-white font-semibold py-3.5 rounded-xl transition-all shadow-[0_0_20px_-5px_rgba(79,70,229,0.3)] hover:shadow-[0_0_25px_-5px_rgba(79,70,229,0.5)] hover:scale-[1.01] active:scale-[0.98]">
+                            {isLoading ? 'Signing In...' : 'Sign In'}
                         </button>
                     </form>
 

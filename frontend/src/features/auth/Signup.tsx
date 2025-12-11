@@ -1,9 +1,23 @@
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 
 export const Signup = () => {
-    const { loginWithGoogle, loginWithGithub, error, isLoading } = useAuth();
+    const { loginWithGoogle, loginWithGithub, signupWithEmail, error, isLoading } = useAuth();
     const navigate = useNavigate();
+    const [name, setName] = useState('');
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        try {
+            await signupWithEmail(name, email, password);
+            navigate('/');
+        } catch (err) {
+            console.error(err);
+        }
+    };
 
     return (
         <div className="min-h-screen w-full flex bg-[#0B0F19] text-white font-sans selection:bg-brand-500/30">
@@ -117,7 +131,7 @@ export const Signup = () => {
                     )}
 
                     {/* Form */}
-                    <form className="space-y-5">
+                    <form className="space-y-5" onSubmit={handleSubmit}>
                          <div className="space-y-1.5">
                             <label className="block text-sm font-medium text-slate-300 ml-1">Full Name</label>
                             <div className="relative group">
@@ -130,6 +144,9 @@ export const Signup = () => {
                                     type="text" 
                                     className="w-full bg-[#131B2C] border border-slate-800 rounded-xl py-3.5 pl-11 pr-4 text-white placeholder:text-slate-600 focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 outline-none transition-all font-sans"
                                     placeholder="John Doe"
+                                    value={name}
+                                    onChange={(e) => setName(e.target.value)}
+                                    required
                                 />
                             </div>
                         </div>
@@ -146,6 +163,9 @@ export const Signup = () => {
                                     type="email" 
                                     className="w-full bg-[#131B2C] border border-slate-800 rounded-xl py-3.5 pl-11 pr-4 text-white placeholder:text-slate-600 focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 outline-none transition-all font-sans"
                                     placeholder="name@company.com"
+                                    value={email}
+                                    onChange={(e) => setEmail(e.target.value)}
+                                    required
                                 />
                             </div>
                         </div>
@@ -162,12 +182,15 @@ export const Signup = () => {
                                     type="password" 
                                     className="w-full bg-[#131B2C] border border-slate-800 rounded-xl py-3.5 pl-11 pr-4 text-white placeholder:text-slate-600 focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 outline-none transition-all font-sans"
                                     placeholder="Create a strong password"
+                                    value={password}
+                                    onChange={(e) => setPassword(e.target.value)}
+                                    required
                                 />
                             </div>
                         </div>
 
-                        <button className="w-full bg-brand-600 hover:bg-brand-500 text-white font-semibold py-3.5 rounded-xl transition-all shadow-[0_0_20px_-5px_rgba(79,70,229,0.3)] hover:shadow-[0_0_25px_-5px_rgba(79,70,229,0.5)] hover:scale-[1.01] active:scale-[0.98]">
-                            Create Account
+                        <button disabled={isLoading} className="w-full disabled:opacity-50 disabled:cursor-not-allowed bg-brand-600 hover:bg-brand-500 text-white font-semibold py-3.5 rounded-xl transition-all shadow-[0_0_20px_-5px_rgba(79,70,229,0.3)] hover:shadow-[0_0_25px_-5px_rgba(79,70,229,0.5)] hover:scale-[1.01] active:scale-[0.98]">
+                            {isLoading ? 'Creating Account...' : 'Create Account'}
                         </button>
                     </form>
 
