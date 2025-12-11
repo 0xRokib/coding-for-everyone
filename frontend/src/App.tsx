@@ -23,6 +23,7 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 
 export default function App() {
   const navigate = useNavigate();
+  const { user } = useAuth();
 
   return (
     <Routes>
@@ -31,7 +32,7 @@ export default function App() {
         <Route path="/signup" element={<Signup />} />
 
         {/* Main Layout Routes */}
-        <Route path="/" element={<Layout><LandingPage onStart={() => navigate('/signup')} /></Layout>} />
+        <Route path="/" element={<Layout><LandingPage onStart={() => navigate(user ? '/dashboard' : '/signup')} /></Layout>} />
         
         {/* Protected Routes */}
         <Route 

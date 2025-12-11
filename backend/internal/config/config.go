@@ -29,7 +29,7 @@ func LoadConfig() *Config {
 		Port:         getEnv("PORT", "8081"),
 		GeminiAPIKey: os.Getenv("GEMINI_API_KEY"),
 		JWTSecret:    getEnv("JWT_SECRET", "default-dev-secret"), // Fallback for dev
-		FrontendURL:  getEnv("FRONTEND_URL", "http://localhost:3002"),
+		FrontendURL:  getEnv("FRONTEND_URL", "http://localhost:3000"),
 		DatabasePath: getDBPath(),
 	}
 
