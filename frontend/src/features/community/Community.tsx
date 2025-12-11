@@ -1,7 +1,82 @@
-import { Clock, Flag, Flame, MessageSquare, MoreHorizontal, Plus, Share2, ThumbsUp, Trophy, User } from 'lucide-react';
+import { Bold, Clock, Code, Eye, Flame, Heading, Italic, Link as LinkIcon, List, MessageSquare, PenTool, Share2, Terminal, ThumbsUp, Trash2, Trophy } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
+import ReactMarkdown from 'react-markdown';
 import { useAuth } from '../../context/AuthContext';
 import { communityService, Post } from '../../services/community.service';
+
+const MarkdownEditor = ({ value, onChange, placeholder }: { value: string, onChange: (val: string) => void, placeholder: string }) => {
+    const [isPreview, setIsPreview] = useState(false);
+
+    const insertFormat = (prefix: string, suffix: string = '') => {
+        const textarea = document.getElementById('post-content') as HTMLTextAreaElement;
+        if (!textarea) return;
+        
+        const start = textarea.selectionStart;
+        const end = textarea.selectionEnd;
+        const text = textarea.value;
+        const before = text.substring(0, start);
+        const selection = text.substring(start, end);
+        const after = text.substring(end);
+
+        const newText = before + prefix + (selection || 'text') + suffix + after;
+        onChange(newText);
+        
+        // Restore focus (timeout needed for React render cycle)
+        setTimeout(() => {
+            textarea.focus();
+            textarea.setSelectionRange(start + prefix.length, end + prefix.length);
+        }, 0);
+    };
+
+    return (
+        <div className="border border-slate-700 rounded-xl overflow-hidden bg-slate-950/50">
+            <div className="flex items-center justify-between px-2 py-2 bg-slate-900 border-b border-slate-700">
+                <div className="flex gap-1">
+                    <button 
+                        type="button"
+                        onClick={() => setIsPreview(false)}
+                        className={`px-3 py-1.5 text-sm font-medium rounded-lg transition-colors ${!isPreview ? 'bg-slate-800 text-white' : 'text-slate-400 hover:text-white'}`}
+                    >
+                        Write
+                    </button>
+                    <button 
+                        type="button"
+                        onClick={() => setIsPreview(true)}
+                        className={`px-3 py-1.5 text-sm font-medium rounded-lg transition-colors ${isPreview ? 'bg-slate-800 text-white' : 'text-slate-400 hover:text-white'}`}
+                    >
+                        Preview
+                    </button>
+                </div>
+                {!isPreview && (
+                    <div className="flex items-center gap-1 border-l border-slate-700 pl-2">
+                        <button type="button" onClick={() => insertFormat('**', '**')} className="p-1.5 text-slate-400 hover:text-white hover:bg-slate-800 rounded" title="Bold"><Bold className="w-4 h-4" /></button>
+                        <button type="button" onClick={() => insertFormat('*', '*')} className="p-1.5 text-slate-400 hover:text-white hover:bg-slate-800 rounded" title="Italic"><Italic className="w-4 h-4" /></button>
+                        <button type="button" onClick={() => insertFormat('[', '](url)')} className="p-1.5 text-slate-400 hover:text-white hover:bg-slate-800 rounded" title="Link"><LinkIcon className="w-4 h-4" /></button>
+                        <button type="button" onClick={() => insertFormat('`', '`')} className="p-1.5 text-slate-400 hover:text-white hover:bg-slate-800 rounded" title="Inline Code"><Code className="w-4 h-4" /></button>
+                        <button type="button" onClick={() => insertFormat('```\n', '\n```')} className="p-1.5 text-slate-400 hover:text-white hover:bg-slate-800 rounded" title="Code Block"><Terminal className="w-4 h-4" /></button>
+                        <button type="button" onClick={() => insertFormat('### ')} className="p-1.5 text-slate-400 hover:text-white hover:bg-slate-800 rounded" title="Heading"><Heading className="w-4 h-4" /></button>
+                        <button type="button" onClick={() => insertFormat('- ')} className="p-1.5 text-slate-400 hover:text-white hover:bg-slate-800 rounded" title="List"><List className="w-4 h-4" /></button>
+                    </div>
+                )}
+            </div>
+
+            {isPreview ? (
+                <div className="p-4 min-h-[200px] prose prose-invert max-w-none text-slate-300">
+                    {value ? <ReactMarkdown>{value}</ReactMarkdown> : <p className="text-slate-500 italic">Nothing to preview</p>}
+                </div>
+            ) : (
+                <textarea
+                    id="post-content"
+                    value={value}
+                    onChange={(e) => onChange(e.target.value)}
+                    placeholder={placeholder}
+                    className="w-full bg-slate-950 p-4 min-h-[200px] outline-none text-slate-200 placeholder:text-slate-600 font-mono text-sm resize-y"
+                    required
+                />
+            )}
+        </div>
+    );
+};
 
 export const Community = () => {
   const { token, user } = useAuth();
@@ -35,14 +110,16 @@ export const Community = () => {
     e.preventDefault();
     if (!token) return;
     try {
-      const newPost = await communityService.createPost(token, title, content, topic);
-      setPosts([newPost, ...posts]);
-      setIsCreating(false);
-      setTitle('');
-      setContent('');
-      setTopic('General');
+        if (!title.trim() || !content.trim()) return;
+        
+        const newPost = await communityService.createPost(token, title, content, topic);
+        setPosts([newPost, ...posts]);
+        setIsCreating(false);
+        setTitle('');
+        setContent('');
+        setTopic('General');
     } catch (error) {
-      console.error('Failed to create post:', error);
+       console.error('Failed to create post:', error);
     }
   };
 
@@ -62,7 +139,7 @@ export const Community = () => {
         {/* LEFT COLUMN: Main Feed (8 cols) */}
         <div className="lg:col-span-8">
             
-            {/* Mobile Header / Actions */}
+            {/* Header + Actions */}
             <div className="flex flex-col sm:flex-row items-center justify-between mb-8 gap-4">
                 <h1 className="text-3xl font-bold text-white tracking-tight">Community Feed</h1>
                 <div className="flex bg-slate-900 p-1 rounded-xl border border-slate-800">
@@ -85,79 +162,74 @@ export const Community = () => {
                 </div>
             </div>
 
-            {/* Create Post Input (Collapsed) */}
-            {!isCreating && (
+            {/* Create Post Interaction */}
+            {!isCreating ? (
                 <div 
                     onClick={() => setIsCreating(true)}
-                    className="bg-slate-900 border border-slate-800 hover:border-slate-700 rounded-2xl p-4 mb-6 cursor-pointer transition-all flex items-center gap-4 group"
+                    className="bg-slate-900 border border-slate-800 hover:border-slate-700 rounded-2xl p-4 mb-8 cursor-pointer transition-all flex items-center gap-4 group"
                 >
-                    <div className="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center text-slate-500 group-hover:bg-slate-700 group-hover:text-slate-300 transition-colors">
-                        <User className="w-5 h-5" />
+                    <div className="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center text-slate-500 group-hover:bg-brand-500/10 group-hover:text-brand-400 transition-colors">
+                        <PenTool className="w-5 h-5" />
                     </div>
-                    <input 
-                        type="text" 
-                        placeholder="Create a post..." 
-                        className="bg-transparent border-none outline-none text-slate-400 placeholder:text-slate-500 flex-1 cursor-pointer"
-                        readOnly
-                    />
-                    <div className="p-2 rounded-lg hover:bg-slate-800 text-slate-500 hover:text-white transition-colors">
-                        <Plus className="w-5 h-5" />
-                    </div>
+                    <span className="text-slate-400 font-medium group-hover:text-slate-300">Write something amazing...</span>
                 </div>
-            )}
-
-            {/* Create Post Form (Expanded) */}
-            {isCreating && (
-                <div className="bg-slate-900 border border-slate-700/50 rounded-2xl p-6 mb-8 animate-in fade-in slide-in-from-top-2 shadow-2xl relative z-10">
+            ) : (
+                <div className="bg-slate-900 border border-slate-700 rounded-2xl p-6 mb-8 animate-in fade-in zoom-in-95 duration-200 shadow-2xl">
                     <div className="flex justify-between items-center mb-6">
-                        <h3 className="text-lg font-bold text-white">Share with the Community</h3>
-                        <button onClick={() => setIsCreating(false)} className="text-slate-400 hover:text-white"><Plus className="w-5 h-5 rotate-45" /></button>
+                        <h3 className="text-lg font-bold text-white">Create Post</h3>
+                        <button onClick={() => setIsCreating(false)} className="text-slate-400 hover:text-white"><Trash2 className="w-5 h-5" /></button>
                     </div>
-                    <form onSubmit={handleSubmit} className="space-y-5">
-                        <input 
-                            type="text" 
-                            value={title}
-                            onChange={e => setTitle(e.target.value)}
-                            className="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 outline-none font-medium text-lg placeholder:text-slate-600"
-                            placeholder="Title of your post"
-                            autoFocus
-                            required
-                        />
-                        <div className="relative">
-                            <textarea 
-                                value={content}
-                                onChange={e => setContent(e.target.value)}
-                                className="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-4 text-white focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 outline-none min-h-[160px] resize-none placeholder:text-slate-600 leading-relaxed"
-                                placeholder="What's on your mind? You can use Markdown."
+                    
+                    <form onSubmit={handleSubmit} className="space-y-6">
+                        <div className="space-y-2">
+                             <input 
+                                type="text" 
+                                value={title}
+                                onChange={e => setTitle(e.target.value)}
+                                className="w-full bg-transparent border-b border-slate-700 px-0 py-2 text-3xl font-bold text-white focus:border-brand-500 outline-none placeholder:text-slate-600 transition-colors"
+                                placeholder="New post title here..."
+                                autoFocus
                                 required
                             />
                         </div>
-                        <div className="flex items-center justify-between pt-2">
-                             <select 
-                                value={topic}
-                                onChange={e => setTopic(e.target.value)}
-                                className="bg-slate-800 border border-slate-700 rounded-lg px-4 py-2 text-sm text-slate-300 focus:border-brand-500 outline-none cursor-pointer"
+
+                         <div className="flex gap-2 mb-2">
+                             {['General', 'Help Wanted', 'Showcase', 'Career Advice'].map(t => (
+                                 <button
+                                    type="button"
+                                    key={t}
+                                    onClick={() => setTopic(t)}
+                                    className={`px-3 py-1 rounded-full text-xs font-medium border transition-all ${
+                                        topic === t 
+                                        ? 'bg-brand-500/20 border-brand-500 text-brand-400' 
+                                        : 'bg-slate-800 border-slate-700 text-slate-400 hover:border-slate-500'
+                                    }`}
+                                 >
+                                     #{t.replace(' ', '')}
+                                 </button>
+                             ))}
+                         </div>
+
+                        <MarkdownEditor 
+                            value={content} 
+                            onChange={setContent} 
+                            placeholder="Write your post content here... You can use formatting to structure your thoughts!" 
+                        />
+
+                        <div className="flex justify-end gap-3 pt-2">
+                            <button 
+                                type="button" 
+                                onClick={() => setIsCreating(false)}
+                                className="px-5 py-2.5 text-slate-400 hover:text-white font-medium"
                             >
-                                <option>General</option>
-                                <option>Help Wanted</option>
-                                <option>Showcase</option>
-                                <option>Career Advice</option>
-                            </select>
-                            <div className="flex gap-3">
-                                <button 
-                                    type="button" 
-                                    onClick={() => setIsCreating(false)}
-                                    className="px-4 py-2 text-slate-400 hover:text-white text-sm font-medium"
-                                >
-                                    Cancel
-                                </button>
-                                <button 
-                                    type="submit"
-                                    className="px-6 py-2 bg-brand-600 hover:bg-brand-500 text-white rounded-lg font-medium shadow-sm transition-all"
-                                >
-                                    Post
-                                </button>
-                            </div>
+                                Cancel
+                            </button>
+                            <button 
+                                type="submit"
+                                className="px-8 py-2.5 bg-brand-600 hover:bg-brand-500 text-white rounded-lg font-bold shadow-lg shadow-brand-500/20 transition-all hover:scale-[1.02]"
+                            >
+                                Publish
+                            </button>
                         </div>
                     </form>
                 </div>
@@ -166,73 +238,64 @@ export const Community = () => {
             {/* Posts Feed */}
             <div className="space-y-4">
                 {isLoading ? (
-                    [1, 2, 3].map(i => (
-                        <div key={i} className="bg-slate-900 border border-slate-800 rounded-2xl p-6 h-48 animate-pulse"></div>
-                    ))
+                    <div className="space-y-4">
+                         {[1, 2, 3].map(i => (
+                            <div key={i} className="bg-slate-900 border border-slate-800 rounded-2xl p-6 h-48 animate-pulse"></div>
+                        ))}
+                    </div>
                 ) : posts.length === 0 ? (
-                    <div className="text-center py-20 bg-slate-900/50 border border-slate-800 border-dashed rounded-2xl">
+                    <div className="text-center py-20 bg-slate-900 border border-slate-800 border-dashed rounded-2xl">
                         <div className="w-16 h-16 bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-4 text-slate-500">
                              <MessageSquare className="w-8 h-8" />
                         </div>
-                        <h3 className="text-lg font-medium text-white">No discussion yet</h3>
-                        <p className="text-slate-400">Be the first to create a post!</p>
+                        <h3 className="text-xl font-bold text-white mb-2">No posts yet</h3>
+                        <p className="text-slate-400 max-w-sm mx-auto">The feed is empty. Be the first to start a conversation!</p>
                     </div>
                 ) : (
                     posts.map(post => (
-                        <div key={post.id} className="group bg-slate-900/40 backdrop-blur-sm hover:bg-slate-900/80 border border-slate-800 hover:border-slate-700 rounded-2xl p-1 transition-all cursor-pointer">
-                            <div className="p-5 sm:p-6 flex gap-4">
-                                {/* Voting (Sidebar Style) */}
-                                <div className="hidden sm:flex flex-col items-center gap-1 min-w-[32px]">
-                                    <button className="text-slate-500 hover:text-brand-400 transition-colors p-1 hover:bg-brand-500/10 rounded">
-                                        <div className="w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-b-[10px] border-b-current"></div>
-                                    </button>
-                                    <span className="text-sm font-bold text-slate-300">{post.likes}</span>
-                                    <button className="text-slate-500 hover:text-red-400 transition-colors p-1 hover:bg-red-500/10 rounded">
-                                        <div className="w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-t-[10px] border-t-current"></div>
-                                    </button>
+                        <div key={post.id} className="group bg-slate-900 border border-slate-800 hover:border-brand-500/50 rounded-2xl p-6 transition-all duration-300 hover:shadow-lg hover:shadow-brand-500/5">
+                            <div className="flex items-start gap-4">
+                                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-slate-700 to-slate-800 flex items-center justify-center text-sm font-bold text-white border border-slate-600 shadow-inner flex-shrink-0">
+                                    {post.author_name?.[0]?.toUpperCase() || 'U'}
                                 </div>
-
-                                {/* Content */}
-                                <div className="flex-1">
-                                    {/* Meta Header */}
-                                    <div className="flex items-center gap-2 mb-2">
-                                        <div className="w-6 h-6 rounded-full bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center text-[10px] font-bold text-white">
-                                            {post.author_name?.[0]?.toUpperCase() || 'U'}
-                                        </div>
-                                        <span className="text-xs font-bold text-slate-300 hover:underline">{post.author_name}</span>
+                                <div className="flex-1 min-w-0">
+                                    <div className="flex items-center gap-2 mb-1">
+                                        <span className="font-bold text-slate-200 hover:text-brand-400 cursor-pointer">{post.author_name}</span>
                                         <span className="text-xs text-slate-500">• {new Date(post.created_at).toLocaleDateString()}</span>
-                                        <span className={`text-[10px] px-2 py-0.5 rounded-full border ${getTopicColor(post.topic)} uppercase tracking-wide font-bold ml-auto sm:ml-2`}>
-                                            {post.topic}
+                                    </div>
+                                    <h2 className="text-2xl font-bold text-white mb-3 leading-tight group-hover:text-brand-400 transition-colors cursor-pointer">
+                                        {post.title}
+                                    </h2>
+                                    <div className="flex flex-wrap gap-2 mb-4">
+                                         <span className={`text-[10px] px-2 py-0.5 rounded border ${getTopicColor(post.topic)} uppercase font-bold`}>
+                                            #{post.topic.replace(/\s+/g, '')}
                                         </span>
                                     </div>
-
-                                    <h3 className="text-xl font-semibold text-white mb-2 leading-snug group-hover:text-brand-400 transition-colors">
-                                        {post.title}
-                                    </h3>
                                     
-                                    <div className="text-slate-400 text-sm leading-relaxed mb-4 line-clamp-3">
-                                        {post.content}
+                                    {/* Render Content Preview properly */}
+                                    <div className="prose prose-invert prose-sm max-w-none text-slate-400 mb-6 line-clamp-4">
+                                        <ReactMarkdown>{post.content}</ReactMarkdown>
                                     </div>
 
-                                    {/* Actions Footer */}
-                                    <div className="flex items-center gap-4 border-t border-slate-800/50 pt-3">
-                                        {/* Mobile Vote (Visible only on small screens) */}
-                                        <div className="flex sm:hidden items-center gap-1.5 bg-slate-800/50 rounded-full px-2 py-1">
-                                            <ThumbsUp className="w-3.5 h-3.5 text-slate-400" />
-                                            <span className="text-xs font-bold text-slate-300">{post.likes}</span>
+                                    <div className="flex items-center justify-between border-t border-slate-800 pt-4">
+                                        <div className="flex items-center gap-6">
+                                             <button className="flex items-center gap-2 text-slate-400 hover:text-brand-400 transition-colors text-sm font-medium">
+                                                <ThumbsUp className="w-4 h-4" />
+                                                <span>{post.likes} <span className="hidden sm:inline">Reactions</span></span>
+                                            </button>
+                                            <button className="flex items-center gap-2 text-slate-400 hover:text-brand-400 transition-colors text-sm font-medium">
+                                                <MessageSquare className="w-4 h-4" />
+                                                <span><span className="hidden sm:inline">Add</span> Comment</span>
+                                            </button>
                                         </div>
-
-                                        <button className="flex items-center gap-2 text-slate-500 hover:text-slate-300 px-2 py-1 rounded-lg hover:bg-slate-800 transition-colors">
-                                            <MessageSquare className="w-4 h-4" />
-                                            <span className="text-xs font-medium">Comments</span>
-                                        </button>
-                                        <button className="flex items-center gap-2 text-slate-500 hover:text-slate-300 px-2 py-1 rounded-lg hover:bg-slate-800 transition-colors">
-                                            <Share2 className="w-4 h-4" />
-                                            <span className="text-xs font-medium">Share</span>
-                                        </button>
-                                        <button className="ml-auto text-slate-500 hover:text-slate-300 p-1 rounded-lg hover:bg-slate-800 transition-colors">
-                                            <MoreHorizontal className="w-4 h-4" />
-                                        </button>
+                                        <div className="flex items-center gap-2 text-slate-500 text-sm">
+                                            <span className="flex items-center gap-1">
+                                                <Eye className="w-4 h-4" /> 120
+                                            </span>
+                                             <button className="p-1.5 hover:bg-slate-800 rounded-lg transition-colors">
+                                                <Share2 className="w-4 h-4" />
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -242,66 +305,59 @@ export const Community = () => {
             </div>
         </div>
 
-        {/* RIGHT COLUMN: Sidebar (4 cols) - Sticky */}
+        {/* RIGHT COLUMN: Sidebar (Sticky) */}
         <div className="hidden lg:block lg:col-span-4 space-y-6">
-            
-            {/* About Community Card */}
-            <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 sticky top-24">
-                <div className="flex items-center gap-3 mb-4">
-                    <div className="w-10 h-10 bg-brand-500/10 rounded-xl flex items-center justify-center text-brand-400">
-                        <Flame className="w-5 h-5" />
-                    </div>
-                    <h2 className="text-lg font-bold text-white">About Community</h2>
-                </div>
-                <p className="text-slate-400 text-sm mb-6 leading-relaxed">
-                    The premier place for <strong>CodeFuture</strong> learners to discuss stack traces, share projects, and debug life together.
-                </p>
-                <div className="flex justify-between items-center border-t border-slate-800 pt-4 mb-6">
-                    <div>
-                        <div className="text-lg font-bold text-white">10.2k</div>
-                        <div className="text-xs text-slate-500">Members</div>
-                    </div>
-                    <div>
-                        <div className="text-lg font-bold text-white">150+</div>
-                        <div className="text-xs text-slate-500">Online</div>
-                    </div>
-                </div>
-                <button 
-                    onClick={() => setIsCreating(true)}
-                    className="w-full py-3 bg-white text-slate-900 font-bold rounded-xl hover:bg-slate-200 transition-colors shadow-lg"
-                >
-                    Create Post
-                </button>
-            </div>
-
-            {/* Trending Topics */}
-            <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 sticky top-[400px]">
-                <h3 className="text-sm font-bold text-slate-500 uppercase tracking-wider mb-4">Trending Topics</h3>
-                <div className="space-y-4">
-                    {['#reactjs', '#golang', '#career_advice', '#showcase'].map(tag => (
-                        <div key={tag} className="flex justify-between items-center group cursor-pointer">
-                            <span className="text-slate-300 group-hover:text-brand-400 transition-colors font-medium">{tag}</span>
-                            <span className="text-xs px-2 py-1 bg-slate-800 rounded-full text-slate-500 group-hover:bg-brand-500/10 group-hover:text-brand-400 transition-all">24 posts</span>
+             {/* Profile Card */}
+             {user && (
+                 <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6">
+                    <div className="flex items-center gap-4 mb-4">
+                        <div className="w-12 h-12 bg-brand-600 rounded-full flex items-center justify-center text-xl font-bold text-white shadow-lg shadow-brand-500/20">
+                            {user.name[0].toUpperCase()}
                         </div>
-                    ))}
+                        <div>
+                            <div className="font-bold text-white text-lg">{user.name}</div>
+                            <div className="text-slate-400 text-sm">@{user.name.toLowerCase().replace(' ', '')}</div>
+                        </div>
+                    </div>
+                    <button className="w-full py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-lg font-medium transition-colors border border-slate-700">
+                        View Profile
+                    </button>
+                 </div>
+             )}
+
+            {/* Trending */}
+            <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 sticky top-24">
+                <h3 className="font-bold text-white mb-4 flex items-center gap-2">
+                    <Flame className="w-5 h-5 text-orange-500" />
+                    Trending Discussions
+                </h3>
+                <div className="space-y-4">
+                     {[1, 2, 3].map(i => (
+                        <div key={i} className="group cursor-pointer">
+                            <div className="text-slate-300 font-medium group-hover:text-brand-400 transition-colors line-clamp-2">
+                                The future of React 19: Everything you need to know
+                            </div>
+                            <div className="text-slate-500 text-xs mt-1">124 comments</div>
+                        </div>
+                     ))}
                 </div>
             </div>
 
             {/* Rules */}
-             <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 sticky top-[650px]">
-                <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-sm font-bold text-slate-500 uppercase tracking-wider">Rules</h3>
-                    <Flag className="w-4 h-4 text-slate-600" />
-                </div>
+             <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 sticky top-80">
+                <h3 className="font-bold text-white mb-4">Community Rules</h3>
                 <ul className="space-y-3 text-sm text-slate-400">
                     <li className="flex gap-2">
-                        <span className="font-bold text-slate-500">1.</span> Be kind and respectful.
+                        <div className="min-w-[4px] h-4 bg-brand-500 rounded-full mt-0.5"></div>
+                        Be respectful and kind
                     </li>
                     <li className="flex gap-2">
-                        <span className="font-bold text-slate-500">2.</span> No spam or self-promotion.
+                         <div className="min-w-[4px] h-4 bg-brand-500 rounded-full mt-0.5"></div>
+                        No spam or self-promotion
                     </li>
                     <li className="flex gap-2">
-                        <span className="font-bold text-slate-500">3.</span> Use code blocks for code.
+                         <div className="min-w-[4px] h-4 bg-brand-500 rounded-full mt-0.5"></div>
+                        Use code blocks for sharing code
                     </li>
                 </ul>
             </div>
