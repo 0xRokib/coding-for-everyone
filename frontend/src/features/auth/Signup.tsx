@@ -8,7 +8,86 @@ export const Signup = () => {
     return (
         <div className="min-h-screen w-full flex bg-[#0B0F19] text-white font-sans selection:bg-brand-500/30">
             
-            {/* LEFT SIDE: Form Interface */}
+            {/* LEFT SIDE: Elegant AI Visual */}
+            <div className="hidden lg:flex w-[55%] relative bg-[#05080F] items-center justify-center p-12 overflow-hidden border-r border-white/5">
+                 {/* Modern Grid Background */}
+                <div className="absolute inset-0 bg-[linear-gradient(to_right,#1f2937_1px,transparent_1px),linear-gradient(to_bottom,#1f2937_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_50%,#000_70%,transparent_100%)] opacity-20" />
+                
+                {/* Ambient Glows */}
+                <div className="absolute top-1/4 right-1/4 w-[600px] h-[600px] bg-brand-600/10 rounded-full blur-[100px] animate-pulse"></div>
+                <div className="absolute bottom-1/4 left-1/4 w-[500px] h-[500px] bg-emerald-600/10 rounded-full blur-[100px] animate-pulse delay-1000"></div>
+
+                {/* Central Visual Card */}
+                <div className="relative z-10 w-full max-w-xl">
+                    <div className="relative bg-white/5 backdrop-blur-2xl border border-white/10 rounded-3xl p-8 shadow-2xl">
+                        {/* Decorative Top Bar */}
+                        <div className="flex items-center justify-between mb-8">
+                            <div className="flex items-center gap-2">
+                                <span className="p-2 rounded-lg bg-emerald-500/20 text-emerald-400">
+                                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                                    </svg>
+                                </span>
+                                <span className="text-white font-medium text-sm">Live Learning</span>
+                            </div>
+                            <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
+                        </div>
+
+                         {/* Feature Highlights */}
+                         <div className="grid grid-cols-2 gap-4 mb-8">
+                            <div className="p-4 rounded-2xl bg-white/5 border border-white/5 hover:bg-white/10 transition-colors cursor-default group">
+                                <div className="mb-3 text-brand-400 group-hover:scale-110 transition-transform origin-left">
+                                     <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                                    </svg>
+                                </div>
+                                <h3 className="text-white font-medium mb-1">AI Powered</h3>
+                                <p className="text-slate-400 text-xs leading-relaxed">Personalized curriculum adapts to your pace instantly.</p>
+                            </div>
+                            <div className="p-4 rounded-2xl bg-white/5 border border-white/5 hover:bg-white/10 transition-colors cursor-default group">
+                                <div className="mb-3 text-purple-400 group-hover:scale-110 transition-transform origin-left">
+                                    <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
+                                    </svg>
+                                </div>
+                                <h3 className="text-white font-medium mb-1">Interactive Coding</h3>
+                                <p className="text-slate-400 text-xs leading-relaxed">Run code directly in your browser with zero setup.</p>
+                            </div>
+                             <div className="p-4 rounded-2xl bg-white/5 border border-white/5 hover:bg-white/10 transition-colors cursor-default group">
+                                <div className="mb-3 text-blue-400 group-hover:scale-110 transition-transform origin-left">
+                                    <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                                    </svg>
+                                </div>
+                                <h3 className="text-white font-medium mb-1">Community</h3>
+                                <p className="text-slate-400 text-xs leading-relaxed">Join a global network of ambitious developers.</p>
+                            </div>
+                             <div className="p-4 rounded-2xl bg-white/5 border border-white/5 hover:bg-white/10 transition-colors cursor-default group">
+                                <div className="mb-3 text-yellow-400 group-hover:scale-110 transition-transform origin-left">
+                                    <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                                    </svg>
+                                </div>
+                                <h3 className="text-white font-medium mb-1">Track Progress</h3>
+                                <p className="text-slate-400 text-xs leading-relaxed">Visualize your growth with detailed analytics.</p>
+                            </div>
+                        </div>
+
+                         <div className="pt-6 border-t border-white/10 text-center">
+                            <p className="text-white/80 font-medium">Trusted by developers from</p>
+                            <div className="flex justify-center gap-6 mt-4 opacity-50 grayscale hover:grayscale-0 transition-all">
+                                {/* Simple text placeholders for logos to keep it clean */}
+                                <span className="font-bold text-lg">Google</span>
+                                <span className="font-bold text-lg">Meta</span>
+                                <span className="font-bold text-lg">Netflix</span>
+                                <span className="font-bold text-lg">Airbnb</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {/* RIGHT SIDE: Form Interface */}
             <div className="w-full lg:w-[45%] flex flex-col justify-center px-8 sm:px-12 lg:px-16 xl:px-20 py-12 relative z-10 bg-[#0B0F19]">
                 <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-brand-500/20 to-transparent"></div>
                 
@@ -137,85 +216,6 @@ export const Signup = () => {
                                 Sign in
                             </button>
                         </p>
-                    </div>
-                </div>
-            </div>
-
-            {/* RIGHT SIDE: Elegant AI Visual */}
-            <div className="hidden lg:flex w-[55%] relative bg-[#05080F] items-center justify-center p-12 overflow-hidden border-l border-white/5">
-                 {/* Modern Grid Background */}
-                <div className="absolute inset-0 bg-[linear-gradient(to_right,#1f2937_1px,transparent_1px),linear-gradient(to_bottom,#1f2937_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_50%,#000_70%,transparent_100%)] opacity-20" />
-                
-                {/* Ambient Glows */}
-                <div className="absolute top-1/4 right-1/4 w-[600px] h-[600px] bg-brand-600/10 rounded-full blur-[100px] animate-pulse"></div>
-                <div className="absolute bottom-1/4 left-1/4 w-[500px] h-[500px] bg-emerald-600/10 rounded-full blur-[100px] animate-pulse delay-1000"></div>
-
-                {/* Central Visual Card */}
-                <div className="relative z-10 w-full max-w-xl">
-                    <div className="relative bg-white/5 backdrop-blur-2xl border border-white/10 rounded-3xl p-8 shadow-2xl">
-                        {/* Decorative Top Bar */}
-                        <div className="flex items-center justify-between mb-8">
-                            <div className="flex items-center gap-2">
-                                <span className="p-2 rounded-lg bg-emerald-500/20 text-emerald-400">
-                                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                                    </svg>
-                                </span>
-                                <span className="text-white font-medium text-sm">Live Learning</span>
-                            </div>
-                            <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
-                        </div>
-
-                         {/* Feature Highlights */}
-                         <div className="grid grid-cols-2 gap-4 mb-8">
-                            <div className="p-4 rounded-2xl bg-white/5 border border-white/5 hover:bg-white/10 transition-colors cursor-default group">
-                                <div className="mb-3 text-brand-400 group-hover:scale-110 transition-transform origin-left">
-                                     <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
-                                    </svg>
-                                </div>
-                                <h3 className="text-white font-medium mb-1">AI Powered</h3>
-                                <p className="text-slate-400 text-xs leading-relaxed">Personalized curriculum adapts to your pace instantly.</p>
-                            </div>
-                            <div className="p-4 rounded-2xl bg-white/5 border border-white/5 hover:bg-white/10 transition-colors cursor-default group">
-                                <div className="mb-3 text-purple-400 group-hover:scale-110 transition-transform origin-left">
-                                    <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
-                                    </svg>
-                                </div>
-                                <h3 className="text-white font-medium mb-1">Interactive Coding</h3>
-                                <p className="text-slate-400 text-xs leading-relaxed">Run code directly in your browser with zero setup.</p>
-                            </div>
-                             <div className="p-4 rounded-2xl bg-white/5 border border-white/5 hover:bg-white/10 transition-colors cursor-default group">
-                                <div className="mb-3 text-blue-400 group-hover:scale-110 transition-transform origin-left">
-                                    <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-                                    </svg>
-                                </div>
-                                <h3 className="text-white font-medium mb-1">Community</h3>
-                                <p className="text-slate-400 text-xs leading-relaxed">Join a global network of ambitious developers.</p>
-                            </div>
-                             <div className="p-4 rounded-2xl bg-white/5 border border-white/5 hover:bg-white/10 transition-colors cursor-default group">
-                                <div className="mb-3 text-yellow-400 group-hover:scale-110 transition-transform origin-left">
-                                    <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                                    </svg>
-                                </div>
-                                <h3 className="text-white font-medium mb-1">Track Progress</h3>
-                                <p className="text-slate-400 text-xs leading-relaxed">Visualize your growth with detailed analytics.</p>
-                            </div>
-                        </div>
-
-                         <div className="pt-6 border-t border-white/10 text-center">
-                            <p className="text-white/80 font-medium">Trusted by developers from</p>
-                            <div className="flex justify-center gap-6 mt-4 opacity-50 grayscale hover:grayscale-0 transition-all">
-                                {/* Simple text placeholders for logos to keep it clean */}
-                                <span className="font-bold text-lg">Google</span>
-                                <span className="font-bold text-lg">Meta</span>
-                                <span className="font-bold text-lg">Netflix</span>
-                                <span className="font-bold text-lg">Airbnb</span>
-                            </div>
-                        </div>
                     </div>
                 </div>
             </div>

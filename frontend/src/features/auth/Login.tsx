@@ -1,14 +1,110 @@
-import { useNavigate } from 'react-router-dom';
+import { useEffect } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 
 export const Login = () => {
-    const { loginWithGoogle, loginWithGithub, error, isLoading } = useAuth();
+    const { loginWithGoogle, loginWithGithub, login, error, isLoading } = useAuth();
     const navigate = useNavigate();
+    const [searchParams] = useSearchParams();
+
+    useEffect(() => {
+        const token = searchParams.get('token');
+        const userId = searchParams.get('user_id');
+        const name = searchParams.get('name');
+        const email = searchParams.get('email'); // Ideally passed back too, but user object constructs locally or refetches.
+        
+        if (token) {
+            // Construct a partial user object or just rely on what we have. 
+            // The context `login` expects a User object.
+            // For now, we'll create a user object from params. 
+            // In a real app, we might want to fetch /me with the token.
+            const user = {
+                id: Number(userId) || 0,
+                name: name || 'User',
+                email: email || '', // Might be missing
+            };
+            
+            login(token, user);
+            navigate('/');
+        }
+    }, [searchParams, login, navigate]);
 
     return (
         <div className="min-h-screen w-full flex bg-[#0B0F19] text-white font-sans selection:bg-brand-500/30">
             
-            {/* LEFT SIDE: Form Interface */}
+             {/* LEFT SIDE: Elegant AI Visual */}
+            <div className="hidden lg:flex w-[55%] relative bg-[#05080F] items-center justify-center p-12 overflow-hidden border-r border-white/5">
+                 {/* Modern Grid Background */}
+                <div className="absolute inset-0 bg-[linear-gradient(to_right,#1f2937_1px,transparent_1px),linear-gradient(to_bottom,#1f2937_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_50%,#000_70%,transparent_100%)] opacity-20" />
+                
+                {/* Ambient Glows */}
+                <div className="absolute top-1/4 left-1/4 w-[600px] h-[600px] bg-brand-600/10 rounded-full blur-[100px] animate-pulse"></div>
+                <div className="absolute bottom-1/4 right-1/4 w-[500px] h-[500px] bg-purple-600/10 rounded-full blur-[100px] animate-pulse delay-1000"></div>
+
+                {/* Central Visual Card */}
+                <div className="relative z-10 w-full max-w-xl">
+                    <div className="relative bg-white/5 backdrop-blur-2xl border border-white/10 rounded-3xl p-8 shadow-2xl">
+                        {/* Decorative Top Bar */}
+                        <div className="flex items-center gap-2 mb-8">
+                            <div className="flex gap-1.5">
+                                <div className="w-3 h-3 rounded-full bg-red-500/80"></div>
+                                <div className="w-3 h-3 rounded-full bg-yellow-500/80"></div>
+                                <div className="w-3 h-3 rounded-full bg-green-500/80"></div>
+                            </div>
+                        </div>
+
+                        {/* Code/Content Preview */}
+                        <div className="space-y-4">
+                            <div className="flex items-center gap-4 p-4 rounded-xl bg-white/5 border border-white/5">
+                                <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-brand-500 to-purple-600 flex items-center justify-center text-white">
+                                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19.428 15.428a2 2 0 00-1.022-.547l-2.384-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
+                                    </svg>
+                                </div>
+                                <div className="flex-1">
+                                    <div className="h-2 w-24 bg-white/20 rounded mb-2"></div>
+                                    <div className="h-2 w-16 bg-white/10 rounded"></div>
+                                </div>
+                                <div className="px-3 py-1 rounded-full bg-green-500/20 text-green-400 text-xs font-medium">98% Match</div>
+                            </div>
+
+                             <div className="flex items-center gap-4 p-4 rounded-xl bg-white/5 border border-white/5 cursor-pointer hover:bg-white/10 transition-colors">
+                                <div className="w-10 h-10 rounded-lg bg-slate-800 flex items-center justify-center text-slate-400">
+                                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
+                                    </svg>
+                                </div>
+                                <div className="flex-1">
+                                    <div className="h-2 w-32 bg-white/20 rounded mb-2"></div>
+                                    <div className="h-2 w-20 bg-white/10 rounded"></div>
+                                </div>
+                                <div className="w-6 h-6 rounded-full border border-white/20 flex items-center justify-center text-white/40 text-xs">
+                                    <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                                    </svg>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="mt-8 pt-8 border-t border-white/10">
+                            <blockquote className="text-xl font-medium text-white/90 leading-relaxed mb-6">
+                                "The most intuitive platform for mastering modern development stacks. It feels like the future."
+                            </blockquote>
+                             <div className="flex items-center gap-3">
+                                <div className="w-10 h-10 rounded-full bg-gradient-to-r from-blue-400 to-cyan-400 flex items-center justify-center font-bold text-white text-sm">
+                                    JS
+                                </div>
+                                <div>
+                                    <div className="font-semibold text-white text-sm">Jordan Smith</div>
+                                    <div className="text-slate-400 text-xs">Full Stack Engineer</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {/* RIGHT SIDE: Form Interface */}
             <div className="w-full lg:w-[45%] flex flex-col justify-center px-8 sm:px-12 lg:px-16 xl:px-20 py-12 relative z-10 bg-[#0B0F19]">
                 <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-brand-500/20 to-transparent"></div>
                 
@@ -124,78 +220,6 @@ export const Login = () => {
                                 Sign up for free
                             </button>
                         </p>
-                    </div>
-                </div>
-            </div>
-
-            {/* RIGHT SIDE: Elegant AI Visual */}
-            <div className="hidden lg:flex w-[55%] relative bg-[#05080F] items-center justify-center p-12 overflow-hidden border-l border-white/5">
-                 {/* Modern Grid Background */}
-                <div className="absolute inset-0 bg-[linear-gradient(to_right,#1f2937_1px,transparent_1px),linear-gradient(to_bottom,#1f2937_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_50%,#000_70%,transparent_100%)] opacity-20" />
-                
-                {/* Ambient Glows */}
-                <div className="absolute top-1/4 left-1/4 w-[600px] h-[600px] bg-brand-600/10 rounded-full blur-[100px] animate-pulse"></div>
-                <div className="absolute bottom-1/4 right-1/4 w-[500px] h-[500px] bg-purple-600/10 rounded-full blur-[100px] animate-pulse delay-1000"></div>
-
-                {/* Central Visual Card */}
-                <div className="relative z-10 w-full max-w-xl">
-                    <div className="relative bg-white/5 backdrop-blur-2xl border border-white/10 rounded-3xl p-8 shadow-2xl">
-                        {/* Decorative Top Bar */}
-                        <div className="flex items-center gap-2 mb-8">
-                            <div className="flex gap-1.5">
-                                <div className="w-3 h-3 rounded-full bg-red-500/80"></div>
-                                <div className="w-3 h-3 rounded-full bg-yellow-500/80"></div>
-                                <div className="w-3 h-3 rounded-full bg-green-500/80"></div>
-                            </div>
-                        </div>
-
-                        {/* Code/Content Preview */}
-                        <div className="space-y-4">
-                            <div className="flex items-center gap-4 p-4 rounded-xl bg-white/5 border border-white/5">
-                                <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-brand-500 to-purple-600 flex items-center justify-center text-white">
-                                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19.428 15.428a2 2 0 00-1.022-.547l-2.384-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
-                                    </svg>
-                                </div>
-                                <div className="flex-1">
-                                    <div className="h-2 w-24 bg-white/20 rounded mb-2"></div>
-                                    <div className="h-2 w-16 bg-white/10 rounded"></div>
-                                </div>
-                                <div className="px-3 py-1 rounded-full bg-green-500/20 text-green-400 text-xs font-medium">98% Match</div>
-                            </div>
-
-                             <div className="flex items-center gap-4 p-4 rounded-xl bg-white/5 border border-white/5 cursor-pointer hover:bg-white/10 transition-colors">
-                                <div className="w-10 h-10 rounded-lg bg-slate-800 flex items-center justify-center text-slate-400">
-                                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
-                                    </svg>
-                                </div>
-                                <div className="flex-1">
-                                    <div className="h-2 w-32 bg-white/20 rounded mb-2"></div>
-                                    <div className="h-2 w-20 bg-white/10 rounded"></div>
-                                </div>
-                                <div className="w-6 h-6 rounded-full border border-white/20 flex items-center justify-center text-white/40 text-xs">
-                                    <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                                    </svg>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div className="mt-8 pt-8 border-t border-white/10">
-                            <blockquote className="text-xl font-medium text-white/90 leading-relaxed mb-6">
-                                "The most intuitive platform for mastering modern development stacks. It feels like the future."
-                            </blockquote>
-                             <div className="flex items-center gap-3">
-                                <div className="w-10 h-10 rounded-full bg-gradient-to-r from-blue-400 to-cyan-400 flex items-center justify-center font-bold text-white text-sm">
-                                    JS
-                                </div>
-                                <div>
-                                    <div className="font-semibold text-white text-sm">Jordan Smith</div>
-                                    <div className="text-slate-400 text-xs">Full Stack Engineer</div>
-                                </div>
-                            </div>
-                        </div>
                     </div>
                 </div>
             </div>

@@ -55,12 +55,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const loginWithGoogle = () => {
       // Redirect to backend OAuth
-      window.location.href = 'http://localhost:8081/auth/google';
+      window.location.href = 'http://localhost:8081/api/auth/google/login';
   };
 
   const loginWithGithub = () => {
       // Redirect to backend OAuth
-      window.location.href = 'http://localhost:8081/auth/github';
+      window.location.href = 'http://localhost:8081/api/auth/github/login';
   };
 
   return (
