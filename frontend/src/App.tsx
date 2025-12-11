@@ -55,7 +55,7 @@ export default function App() {
             path="/course/:courseId" 
             element={
                 <ProtectedRoute>
-                    <Layout><LearningStudio /></Layout>
+                    <Layout><LearningStudio user={user!} /></Layout>
                 </ProtectedRoute>
             } 
         />

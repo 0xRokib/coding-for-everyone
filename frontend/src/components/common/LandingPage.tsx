@@ -162,45 +162,174 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onStart }) => {
           </div>
         </div>
 
-        {/* --- NEW SECTION: The Journey --- */}
+        {/* --- ENHANCED SECTION: The Journey --- */}
         <div className="relative mt-32 w-full max-w-6xl mb-24">
-            <h2 className="text-3xl md:text-5xl font-bold text-white mb-16 text-center tracking-tight">
-              Start your journey in <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-400 to-purple-400">3 simple steps</span>
+            <h2 className="text-3xl md:text-5xl font-bold text-white mb-4 text-center tracking-tight">
+              Start Your Coding Journey
             </h2>
+            <p className="text-slate-400 text-lg text-center mb-20 max-w-2xl mx-auto">
+              From zero to hero in three simple steps. No prior experience needed—just bring your curiosity.
+            </p>
             
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 relative px-4">
-                {/* Connecting Line (Desktop) */}
-                <div className="hidden md:block absolute top-[2.5rem] left-0 w-full h-0.5 bg-gradient-to-r from-slate-800 via-brand-500/50 to-slate-800 z-0"></div>
+            <div className="space-y-24 relative px-4">
+                {/* Vertical Progress Line (Mobile/Tablet) */}
+                <div className="md:hidden absolute left-12 top-0 bottom-0 w-0.5 bg-gradient-to-b from-brand-500/50 via-purple-500/50 to-emerald-500/50"></div>
                 
-                {/* Step 1 */}
-                <div className="relative z-10 flex flex-col items-center text-center group cursor-default">
-                    <div className="w-20 h-20 rounded-2xl bg-slate-900 border-2 border-slate-700 flex items-center justify-center mb-6 shadow-[0_0_20px_-5px_rgba(59,130,246,0.3)] group-hover:border-brand-500 group-hover:scale-110 transition-all duration-500 group-hover:shadow-[0_0_50px_-10px_rgba(59,130,246,0.6)] group-hover:rotate-3">
-                         <Target className="w-10 h-10 text-brand-400 group-hover:animate-pulse" />
+                {/* Step 1 - Slide in from left */}
+                <div className="relative flex flex-col md:flex-row items-center gap-8 group">
+                    {/* Step Number Badge */}
+                    <div className="relative z-10 flex-shrink-0">
+                        <div className="w-24 h-24 rounded-3xl bg-gradient-to-br from-brand-600 to-brand-700 border-4 border-slate-900 flex items-center justify-center shadow-[0_0_40px_-10px_rgba(79,70,229,0.6)] group-hover:scale-110 group-hover:rotate-6 transition-all duration-500">
+                             <div className="text-center">
+                                <div className="text-3xl font-black text-white">01</div>
+                             </div>
+                        </div>
+                        {/* Connecting dot for mobile */}
+                        <div className="md:hidden absolute left-1/2 -translate-x-1/2 -bottom-16 w-3 h-3 rounded-full bg-brand-500 animate-pulse"></div>
                     </div>
-                    <div className="bg-slate-900 px-4 py-1 rounded-full border border-slate-800 text-brand-400 text-xs font-bold mb-3 uppercase tracking-wider">Step 01</div>
-                    <h3 className="text-xl font-bold text-white mb-2">Set Your Goal</h3>
-                    <p className="text-slate-400 text-sm max-w-[200px] group-hover:text-slate-300 transition-colors">Tell us what you dream of building. Games? Apps? AI?</p>
+
+                    {/* Content Card */}
+                    <div className="flex-1 bg-gradient-to-br from-slate-800/80 to-slate-900/80 backdrop-blur-xl border border-slate-700/50 rounded-3xl p-8 group-hover:border-brand-500/50 transition-all duration-500 group-hover:shadow-[0_0_60px_-15px_rgba(79,70,229,0.4)] group-hover:translate-x-2">
+                        <div className="flex items-start gap-6">
+                            <div className="flex-shrink-0 w-16 h-16 rounded-2xl bg-brand-500/10 flex items-center justify-center group-hover:bg-brand-500/20 transition-colors">
+                                <Target className="w-8 h-8 text-brand-400" />
+                            </div>
+                            <div className="flex-1">
+                                <div className="inline-block px-3 py-1 bg-brand-500/10 text-brand-400 rounded-full text-xs font-bold mb-3 uppercase tracking-wider border border-brand-500/20">
+                                    Choose Your Path
+                                </div>
+                                <h3 className="text-2xl font-bold text-white mb-3">Tell Us Your Dream</h3>
+                                <p className="text-slate-300 leading-relaxed mb-4">
+                                    Want to build games? Create websites? Automate boring tasks? Just tell us what excites you, and we'll craft a personalized learning path designed specifically for your goals.
+                                </p>
+                                <div className="flex flex-wrap gap-2">
+                                    <span className="px-3 py-1.5 bg-slate-700/50 text-slate-300 rounded-lg text-sm font-medium border border-slate-600/50 hover:border-brand-500/50 hover:text-brand-300 transition-all cursor-default">🎮 Game Development</span>
+                                    <span className="px-3 py-1.5 bg-slate-700/50 text-slate-300 rounded-lg text-sm font-medium border border-slate-600/50 hover:border-brand-500/50 hover:text-brand-300 transition-all cursor-default">🌐 Web Development</span>
+                                    <span className="px-3 py-1.5 bg-slate-700/50 text-slate-300 rounded-lg text-sm font-medium border border-slate-600/50 hover:border-brand-500/50 hover:text-brand-300 transition-all cursor-default">🤖 AI & ML</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
-                {/* Step 2 */}
-                <div className="relative z-10 flex flex-col items-center text-center group cursor-default">
-                    <div className="w-20 h-20 rounded-2xl bg-slate-900 border-2 border-slate-700 flex items-center justify-center mb-6 shadow-[0_0_20px_-5px_rgba(168,85,247,0.3)] group-hover:border-purple-500 group-hover:scale-110 transition-all duration-500 delay-100 group-hover:shadow-[0_0_50px_-10px_rgba(168,85,247,0.6)] group-hover:-rotate-3">
-                         <Cpu className="w-10 h-10 text-purple-400 group-hover:animate-pulse" />
+                {/* Step 2 - Slide in from right */}
+                <div className="relative flex flex-col md:flex-row-reverse items-center gap-8 group">
+                    {/* Step Number Badge */}
+                    <div className="relative z-10 flex-shrink-0">
+                        <div className="w-24 h-24 rounded-3xl bg-gradient-to-br from-purple-600 to-purple-700 border-4 border-slate-900 flex items-center justify-center shadow-[0_0_40px_-10px_rgba(168,85,247,0.6)] group-hover:scale-110 group-hover:-rotate-6 transition-all duration-500">
+                             <div className="text-center">
+                                <div className="text-3xl font-black text-white">02</div>
+                             </div>
+                        </div>
+                        {/* Connecting dot for mobile */}
+                        <div className="md:hidden absolute left-1/2 -translate-x-1/2 -bottom-16 w-3 h-3 rounded-full bg-purple-500 animate-pulse"></div>
                     </div>
-                    <div className="bg-slate-900 px-4 py-1 rounded-full border border-slate-800 text-purple-400 text-xs font-bold mb-3 uppercase tracking-wider">Step 02</div>
-                    <h3 className="text-xl font-bold text-white mb-2">AI Creates Plan</h3>
-                    <p className="text-slate-400 text-sm max-w-[200px] group-hover:text-slate-300 transition-colors">We instantly generate a custom curriculum just for you.</p>
+
+                    {/* Content Card */}
+                    <div className="flex-1 bg-gradient-to-br from-slate-800/80 to-slate-900/80 backdrop-blur-xl border border-slate-700/50 rounded-3xl p-8 group-hover:border-purple-500/50 transition-all duration-500 group-hover:shadow-[0_0_60px_-15px_rgba(168,85,247,0.4)] group-hover:-translate-x-2">
+                        <div className="flex items-start gap-6">
+                            <div className="flex-shrink-0 w-16 h-16 rounded-2xl bg-purple-500/10 flex items-center justify-center group-hover:bg-purple-500/20 transition-colors">
+                                <Cpu className="w-8 h-8 text-purple-400" />
+                            </div>
+                            <div className="flex-1">
+                                <div className="inline-block px-3 py-1 bg-purple-500/10 text-purple-400 rounded-full text-xs font-bold mb-3 uppercase tracking-wider border border-purple-500/20">
+                                    AI-Powered Magic
+                                </div>
+                                <h3 className="text-2xl font-bold text-white mb-3">Get Your Custom Curriculum</h3>
+                                <p className="text-slate-300 leading-relaxed mb-4">
+                                    Our AI instantly analyzes your goals and creates a step-by-step learning plan tailored just for you. No two journeys are the same—yours is uniquely designed to match your pace and interests.
+                                </p>
+                                <div className="grid grid-cols-2 gap-3">
+                                    <div className="flex items-center gap-2 text-sm text-slate-300">
+                                        <CheckCircle2 className="w-5 h-5 text-purple-400 flex-shrink-0" />
+                                        <span>Personalized Lessons</span>
+                                    </div>
+                                    <div className="flex items-center gap-2 text-sm text-slate-300">
+                                        <CheckCircle2 className="w-5 h-5 text-purple-400 flex-shrink-0" />
+                                        <span>Adaptive Difficulty</span>
+                                    </div>
+                                    <div className="flex items-center gap-2 text-sm text-slate-300">
+                                        <CheckCircle2 className="w-5 h-5 text-purple-400 flex-shrink-0" />
+                                        <span>Real-World Projects</span>
+                                    </div>
+                                    <div className="flex items-center gap-2 text-sm text-slate-300">
+                                        <CheckCircle2 className="w-5 h-5 text-purple-400 flex-shrink-0" />
+                                        <span>24/7 AI Assistant</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
-                {/* Step 3 */}
-                <div className="relative z-10 flex flex-col items-center text-center group cursor-default">
-                     <div className="w-20 h-20 rounded-2xl bg-slate-900 border-2 border-slate-700 flex items-center justify-center mb-6 shadow-[0_0_20px_-5px_rgba(16,185,129,0.3)] group-hover:border-emerald-500 group-hover:scale-110 transition-all duration-500 delay-200 group-hover:shadow-[0_0_50px_-10px_rgba(16,185,129,0.6)] group-hover:rotate-3">
-                         <Trophy className="w-10 h-10 text-emerald-400 group-hover:animate-pulse" />
-                     </div>
-                    <div className="bg-slate-900 px-4 py-1 rounded-full border border-slate-800 text-emerald-400 text-xs font-bold mb-3 uppercase tracking-wider">Step 03</div>
-                    <h3 className="text-xl font-bold text-white mb-2">Master Coding</h3>
-                    <p className="text-slate-400 text-sm max-w-[200px] group-hover:text-slate-300 transition-colors">Build real projects, earn XP, and launch your career.</p>
+                {/* Step 3 - Slide in from left */}
+                <div className="relative flex flex-col md:flex-row items-center gap-8 group">
+                    {/* Step Number Badge */}
+                    <div className="relative z-10 flex-shrink-0">
+                        <div className="w-24 h-24 rounded-3xl bg-gradient-to-br from-emerald-600 to-emerald-700 border-4 border-slate-900 flex items-center justify-center shadow-[0_0_40px_-10px_rgba(16,185,129,0.6)] group-hover:scale-110 group-hover:rotate-6 transition-all duration-500">
+                             <div className="text-center">
+                                <div className="text-3xl font-black text-white">03</div>
+                             </div>
+                        </div>
+                    </div>
+
+                    {/* Content Card */}
+                    <div className="flex-1 bg-gradient-to-br from-slate-800/80 to-slate-900/80 backdrop-blur-xl border border-slate-700/50 rounded-3xl p-8 group-hover:border-emerald-500/50 transition-all duration-500 group-hover:shadow-[0_0_60px_-15px_rgba(16,185,129,0.4)] group-hover:translate-x-2">
+                        <div className="flex items-start gap-6">
+                            <div className="flex-shrink-0 w-16 h-16 rounded-2xl bg-emerald-500/10 flex items-center justify-center group-hover:bg-emerald-500/20 transition-colors">
+                                <Trophy className="w-8 h-8 text-emerald-400" />
+                            </div>
+                            <div className="flex-1">
+                                <div className="inline-block px-3 py-1 bg-emerald-500/10 text-emerald-400 rounded-full text-xs font-bold mb-3 uppercase tracking-wider border border-emerald-500/20">
+                                    Build & Launch
+                                </div>
+                                <h3 className="text-2xl font-bold text-white mb-3">Master Through Practice</h3>
+                                <p className="text-slate-300 leading-relaxed mb-4">
+                                    Learn by building real projects that matter. Code directly in your browser, get instant feedback, earn achievements, and watch your skills grow. From your first "Hello World" to launching your own apps.
+                                </p>
+                                <div className="flex items-center gap-4 p-4 bg-emerald-500/5 border border-emerald-500/20 rounded-xl">
+                                    <div className="flex items-center gap-2">
+                                        <Zap className="w-5 h-5 text-emerald-400" />
+                                        <span className="text-sm font-medium text-emerald-300">Instant Code Execution</span>
+                                    </div>
+                                    <div className="h-4 w-px bg-emerald-500/30"></div>
+                                    <div className="flex items-center gap-2">
+                                        <Rocket className="w-5 h-5 text-emerald-400" />
+                                        <span className="text-sm font-medium text-emerald-300">Portfolio Ready</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
+            </div>
+
+            {/* CTA at bottom */}
+            <div className="mt-20 text-center">
+                <button 
+                    onClick={onStart}
+                    className="group relative inline-flex items-center justify-center px-10 py-5 text-lg font-bold text-white transition-all bg-gradient-to-r from-brand-600 via-purple-600 to-emerald-600 rounded-2xl hover:from-brand-500 hover:via-purple-500 hover:to-emerald-500 hover:scale-105 focus:outline-none focus:ring-4 focus:ring-brand-400/50 shadow-[0_0_40px_-10px_rgba(79,70,229,0.8)] hover:shadow-[0_0_60px_-10px_rgba(79,70,229,1)] animate-gradient bg-[length:200%_auto]"
+                >
+                    <Rocket className="mr-3 w-6 h-6 group-hover:animate-bounce" />
+                    Begin Your Journey Now
+                    <ArrowRight className="ml-3 w-6 h-6 group-hover:translate-x-2 transition-transform" />
+                </button>
+                <p className="mt-4 text-sm text-slate-400">
+                    <span className="inline-flex items-center gap-2">
+                        <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                        Free Forever
+                    </span>
+                    <span className="mx-3 text-slate-700">•</span>
+                    <span className="inline-flex items-center gap-2">
+                        <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                        No Credit Card
+                    </span>
+                    <span className="mx-3 text-slate-700">•</span>
+                    <span className="inline-flex items-center gap-2">
+                        <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                        Start in 30 Seconds
+                    </span>
+                </p>
             </div>
         </div>
 

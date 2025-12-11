@@ -2,25 +2,30 @@ import { BookOpen, CheckCircle, Code2, Lightbulb, MessageSquare, Play, Send, Ter
 import React, { useEffect, useRef, useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 import { chatWithTutor, simulateCodeExecution } from '../../services/gemini';
-import { Lesson, UserProfile } from '../../types';
+import { Lesson, User } from '../../types';
 
 interface LearningStudioProps {
-  user: UserProfile;
+  user: User;
 }
 
 export const LearningStudio: React.FC<LearningStudioProps> = ({ user }) => {
+  // Provide defaults for UserProfile fields that may not exist on basic User type
+  const userPersona = UserPersona.STUDENT; // Default persona
+  const currentCurriculum = undefined; // Will be loaded from backend or onboarding
+  const programmingLanguage = currentCurriculum?.language || 'python';
+  
   const [currentLessonIndex, setCurrentLessonIndex] = useState(0);
   const [code, setCode] = useState('');
   const [output, setOutput] = useState('');
   const [chatInput, setChatInput] = useState('');
   const [chatHistory, setChatHistory] = useState<{role: 'user' | 'model', text: string}[]>([
-    { role: 'model', text: `Hi ${user.name}! 👋 I'm here to help you learn **${user.currentCurriculum?.language || 'programming'}**. Ask me anything when you need help!` }
+    { role: 'model', text: `Hi ${user.name}! 👋 I'm here to help you learn **${programmingLanguage}**. Ask me anything when you need help!` }
   ]);
   const [isRunning, setIsRunning] = useState(false);
   const [isChatting, setIsChatting] = useState(false);
   const chatEndRef = useRef<HTMLDivElement>(null);
 
-  const lessons = user.currentCurriculum?.lessons || [];
+  const lessons = currentCurriculum?.lessons || [];
   const currentLesson = lessons[currentLessonIndex] || { title: "Loading...", content: "No lessons found.", initialCode: "" };
 
   useEffect(() => {
