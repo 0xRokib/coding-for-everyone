@@ -162,140 +162,279 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onStart }) => {
           </div>
         </div>
 
-        {/* --- ENHANCED SECTION: The Journey --- */}
-        <div className="relative mt-32 w-full max-w-6xl mb-24">
-            <h2 className="text-3xl md:text-5xl font-bold text-white mb-4 text-center tracking-tight">
-              Start Your Coding Journey
-            </h2>
-            <p className="text-slate-400 text-lg text-center mb-20 max-w-2xl mx-auto">
-              From zero to hero in three simple steps. No prior experience needed—just bring your curiosity.
-            </p>
+        {/* --- ULTRA-MODERN SECTION: The Journey --- */}
+        <div className="relative mt-32 w-full max-w-5xl mb-24">
+            {/* Section Header */}
+            <div className="text-center mb-20">
+                <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-brand-500/10 to-purple-500/10 text-brand-400 text-sm font-medium mb-6 border border-brand-500/20">
+                    <Rocket className="w-4 h-4" />
+                    Your Path to Success
+                </div>
+                <h2 className="text-4xl md:text-6xl font-black text-white mb-6 tracking-tight">
+                    Start Your Coding Journey
+                </h2>
+                <p className="text-slate-400 text-xl max-w-2xl mx-auto leading-relaxed">
+                    Three simple steps from complete beginner to confident developer. No experience required.
+                </p>
+            </div>
             
-            <div className="space-y-24 relative px-4">
-                {/* Vertical Progress Line (Mobile/Tablet) */}
-                <div className="md:hidden absolute left-12 top-0 bottom-0 w-0.5 bg-gradient-to-b from-brand-500/50 via-purple-500/50 to-emerald-500/50"></div>
+            {/* Vertical Timeline */}
+            <div className="relative">
+                {/* Central Vertical Line */}
+                <div className="absolute left-1/2 top-0 bottom-0 w-1 -translate-x-1/2 bg-gradient-to-b from-brand-500 via-purple-500 to-emerald-500 opacity-20 hidden md:block"></div>
                 
-                {/* Step 1 - Slide in from left */}
-                <div className="relative flex flex-col md:flex-row items-center gap-8 group">
-                    {/* Step Number Badge */}
-                    <div className="relative z-10 flex-shrink-0">
-                        <div className="w-24 h-24 rounded-3xl bg-gradient-to-br from-brand-600 to-brand-700 border-4 border-slate-900 flex items-center justify-center shadow-[0_0_40px_-10px_rgba(79,70,229,0.6)] group-hover:scale-110 group-hover:rotate-6 transition-all duration-500">
-                             <div className="text-center">
-                                <div className="text-3xl font-black text-white">01</div>
-                             </div>
-                        </div>
-                        {/* Connecting dot for mobile */}
-                        <div className="md:hidden absolute left-1/2 -translate-x-1/2 -bottom-16 w-3 h-3 rounded-full bg-brand-500 animate-pulse"></div>
-                    </div>
+                {/* Mobile Vertical Line */}
+                <div className="absolute left-8 top-0 bottom-0 w-1 bg-gradient-to-b from-brand-500 via-purple-500 to-emerald-500 opacity-30 md:hidden"></div>
 
-                    {/* Content Card */}
-                    <div className="flex-1 bg-gradient-to-br from-slate-800/80 to-slate-900/80 backdrop-blur-xl border border-slate-700/50 rounded-3xl p-8 group-hover:border-brand-500/50 transition-all duration-500 group-hover:shadow-[0_0_60px_-15px_rgba(79,70,229,0.4)] group-hover:translate-x-2">
-                        <div className="flex items-start gap-6">
-                            <div className="flex-shrink-0 w-16 h-16 rounded-2xl bg-brand-500/10 flex items-center justify-center group-hover:bg-brand-500/20 transition-colors">
-                                <Target className="w-8 h-8 text-brand-400" />
-                            </div>
-                            <div className="flex-1">
-                                <div className="inline-block px-3 py-1 bg-brand-500/10 text-brand-400 rounded-full text-xs font-bold mb-3 uppercase tracking-wider border border-brand-500/20">
-                                    Choose Your Path
-                                </div>
-                                <h3 className="text-2xl font-bold text-white mb-3">Tell Us Your Dream</h3>
-                                <p className="text-slate-300 leading-relaxed mb-4">
-                                    Want to build games? Create websites? Automate boring tasks? Just tell us what excites you, and we'll craft a personalized learning path designed specifically for your goals.
-                                </p>
-                                <div className="flex flex-wrap gap-2">
-                                    <span className="px-3 py-1.5 bg-slate-700/50 text-slate-300 rounded-lg text-sm font-medium border border-slate-600/50 hover:border-brand-500/50 hover:text-brand-300 transition-all cursor-default">🎮 Game Development</span>
-                                    <span className="px-3 py-1.5 bg-slate-700/50 text-slate-300 rounded-lg text-sm font-medium border border-slate-600/50 hover:border-brand-500/50 hover:text-brand-300 transition-all cursor-default">🌐 Web Development</span>
-                                    <span className="px-3 py-1.5 bg-slate-700/50 text-slate-300 rounded-lg text-sm font-medium border border-slate-600/50 hover:border-brand-500/50 hover:text-brand-300 transition-all cursor-default">🤖 AI & ML</span>
+                <div className="space-y-32 md:space-y-40">
+                    {/* Step 1 */}
+                    <div className="relative">
+                        {/* Timeline Dot */}
+                        <div className="absolute left-1/2 -translate-x-1/2 w-6 h-6 rounded-full bg-brand-500 border-4 border-slate-900 z-20 hidden md:block animate-pulse"></div>
+                        <div className="absolute left-8 -translate-x-1/2 w-6 h-6 rounded-full bg-brand-500 border-4 border-slate-900 z-20 md:hidden animate-pulse"></div>
+                        
+                        {/* Content */}
+                        <div className="md:grid md:grid-cols-2 md:gap-16 items-center">
+                            {/* Left: Number Badge (Desktop) */}
+                            <div className="hidden md:flex justify-end">
+                                <div className="relative group">
+                                    <div className="absolute inset-0 bg-brand-500 rounded-3xl blur-2xl opacity-50 group-hover:opacity-75 transition-opacity"></div>
+                                    <div className="relative w-32 h-32 rounded-3xl bg-gradient-to-br from-brand-600 to-brand-700 flex items-center justify-center border-4 border-slate-900 shadow-2xl group-hover:scale-110 group-hover:rotate-6 transition-all duration-500">
+                                        <span className="text-5xl font-black text-white">01</span>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                    </div>
-                </div>
 
-                {/* Step 2 - Slide in from right */}
-                <div className="relative flex flex-col md:flex-row-reverse items-center gap-8 group">
-                    {/* Step Number Badge */}
-                    <div className="relative z-10 flex-shrink-0">
-                        <div className="w-24 h-24 rounded-3xl bg-gradient-to-br from-purple-600 to-purple-700 border-4 border-slate-900 flex items-center justify-center shadow-[0_0_40px_-10px_rgba(168,85,247,0.6)] group-hover:scale-110 group-hover:-rotate-6 transition-all duration-500">
-                             <div className="text-center">
-                                <div className="text-3xl font-black text-white">02</div>
-                             </div>
-                        </div>
-                        {/* Connecting dot for mobile */}
-                        <div className="md:hidden absolute left-1/2 -translate-x-1/2 -bottom-16 w-3 h-3 rounded-full bg-purple-500 animate-pulse"></div>
-                    </div>
-
-                    {/* Content Card */}
-                    <div className="flex-1 bg-gradient-to-br from-slate-800/80 to-slate-900/80 backdrop-blur-xl border border-slate-700/50 rounded-3xl p-8 group-hover:border-purple-500/50 transition-all duration-500 group-hover:shadow-[0_0_60px_-15px_rgba(168,85,247,0.4)] group-hover:-translate-x-2">
-                        <div className="flex items-start gap-6">
-                            <div className="flex-shrink-0 w-16 h-16 rounded-2xl bg-purple-500/10 flex items-center justify-center group-hover:bg-purple-500/20 transition-colors">
-                                <Cpu className="w-8 h-8 text-purple-400" />
-                            </div>
-                            <div className="flex-1">
-                                <div className="inline-block px-3 py-1 bg-purple-500/10 text-purple-400 rounded-full text-xs font-bold mb-3 uppercase tracking-wider border border-purple-500/20">
-                                    AI-Powered Magic
+                            {/* Right: Content Card */}
+                            <div className="ml-16 md:ml-0">
+                                {/* Mobile Number Badge */}
+                                <div className="md:hidden mb-6 relative group inline-block">
+                                    <div className="absolute inset-0 bg-brand-500 rounded-2xl blur-xl opacity-50"></div>
+                                    <div className="relative w-20 h-20 rounded-2xl bg-gradient-to-br from-brand-600 to-brand-700 flex items-center justify-center border-4 border-slate-900">
+                                        <span className="text-3xl font-black text-white">01</span>
+                                    </div>
                                 </div>
-                                <h3 className="text-2xl font-bold text-white mb-3">Get Your Custom Curriculum</h3>
-                                <p className="text-slate-300 leading-relaxed mb-4">
-                                    Our AI instantly analyzes your goals and creates a step-by-step learning plan tailored just for you. No two journeys are the same—yours is uniquely designed to match your pace and interests.
-                                </p>
-                                <div className="grid grid-cols-2 gap-3">
-                                    <div className="flex items-center gap-2 text-sm text-slate-300">
-                                        <CheckCircle2 className="w-5 h-5 text-purple-400 flex-shrink-0" />
-                                        <span>Personalized Lessons</span>
+
+                                <div className="group cursor-default">
+                                    <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-brand-500/10 text-brand-400 rounded-full text-xs font-bold mb-4 uppercase tracking-wider border border-brand-500/20">
+                                        <Target className="w-3.5 h-3.5" />
+                                        Choose Your Path
                                     </div>
-                                    <div className="flex items-center gap-2 text-sm text-slate-300">
-                                        <CheckCircle2 className="w-5 h-5 text-purple-400 flex-shrink-0" />
-                                        <span>Adaptive Difficulty</span>
+                                    <h3 className="text-3xl md:text-4xl font-bold text-white mb-4 group-hover:text-brand-400 transition-colors">
+                                        Tell Us Your Dream
+                                    </h3>
+                                    <p className="text-slate-300 text-lg leading-relaxed mb-6">
+                                        What do you want to build? Games that millions play? Websites that change lives? AI that solves problems? Share your vision, and we'll create a personalized roadmap designed specifically for your goals.
+                                    </p>
+                                    
+                                    {/* Feature Tags */}
+                                    <div className="flex flex-wrap gap-3 mb-6">
+                                        <div className="group/tag px-4 py-2.5 bg-slate-800/50 backdrop-blur-sm border border-slate-700/50 rounded-xl hover:border-brand-500/50 hover:bg-slate-800 transition-all cursor-pointer">
+                                            <div className="flex items-center gap-2">
+                                                <span className="text-2xl">🎮</span>
+                                                <span className="text-sm font-medium text-slate-300 group-hover/tag:text-brand-300">Game Development</span>
+                                            </div>
+                                        </div>
+                                        <div className="group/tag px-4 py-2.5 bg-slate-800/50 backdrop-blur-sm border border-slate-700/50 rounded-xl hover:border-brand-500/50 hover:bg-slate-800 transition-all cursor-pointer">
+                                            <div className="flex items-center gap-2">
+                                                <span className="text-2xl">🌐</span>
+                                                <span className="text-sm font-medium text-slate-300 group-hover/tag:text-brand-300">Web Development</span>
+                                            </div>
+                                        </div>
+                                        <div className="group/tag px-4 py-2.5 bg-slate-800/50 backdrop-blur-sm border border-slate-700/50 rounded-xl hover:border-brand-500/50 hover:bg-slate-800 transition-all cursor-pointer">
+                                            <div className="flex items-center gap-2">
+                                                <span className="text-2xl">🤖</span>
+                                                <span className="text-sm font-medium text-slate-300 group-hover/tag:text-brand-300">AI & Machine Learning</span>
+                                            </div>
+                                        </div>
                                     </div>
-                                    <div className="flex items-center gap-2 text-sm text-slate-300">
-                                        <CheckCircle2 className="w-5 h-5 text-purple-400 flex-shrink-0" />
-                                        <span>Real-World Projects</span>
-                                    </div>
-                                    <div className="flex items-center gap-2 text-sm text-slate-300">
-                                        <CheckCircle2 className="w-5 h-5 text-purple-400 flex-shrink-0" />
-                                        <span>24/7 AI Assistant</span>
+
+                                    {/* Stats */}
+                                    <div className="flex items-center gap-6 text-sm">
+                                        <div className="flex items-center gap-2 text-slate-400">
+                                            <div className="w-2 h-2 rounded-full bg-brand-500 animate-pulse"></div>
+                                            <span>30 seconds</span>
+                                        </div>
+                                        <div className="flex items-center gap-2 text-slate-400">
+                                            <CheckCircle2 className="w-4 h-4 text-brand-400" />
+                                            <span>No signup required</span>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                </div>
 
-                {/* Step 3 - Slide in from left */}
-                <div className="relative flex flex-col md:flex-row items-center gap-8 group">
-                    {/* Step Number Badge */}
-                    <div className="relative z-10 flex-shrink-0">
-                        <div className="w-24 h-24 rounded-3xl bg-gradient-to-br from-emerald-600 to-emerald-700 border-4 border-slate-900 flex items-center justify-center shadow-[0_0_40px_-10px_rgba(16,185,129,0.6)] group-hover:scale-110 group-hover:rotate-6 transition-all duration-500">
-                             <div className="text-center">
-                                <div className="text-3xl font-black text-white">03</div>
-                             </div>
+                    {/* Step 2 */}
+                    <div className="relative">
+                        {/* Timeline Dot */}
+                        <div className="absolute left-1/2 -translate-x-1/2 w-6 h-6 rounded-full bg-purple-500 border-4 border-slate-900 z-20 hidden md:block animate-pulse"></div>
+                        <div className="absolute left-8 -translate-x-1/2 w-6 h-6 rounded-full bg-purple-500 border-4 border-slate-900 z-20 md:hidden animate-pulse"></div>
+                        
+                        {/* Content */}
+                        <div className="md:grid md:grid-cols-2 md:gap-16 items-center">
+                            {/* Left: Content Card (Desktop) */}
+                            <div className="hidden md:block">
+                                <div className="group cursor-default text-right">
+                                    <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-purple-500/10 text-purple-400 rounded-full text-xs font-bold mb-4 uppercase tracking-wider border border-purple-500/20">
+                                        <Cpu className="w-3.5 h-3.5" />
+                                        AI-Powered Magic
+                                    </div>
+                                    <h3 className="text-3xl md:text-4xl font-bold text-white mb-4 group-hover:text-purple-400 transition-colors">
+                                        Get Your Custom Curriculum
+                                    </h3>
+                                    <p className="text-slate-300 text-lg leading-relaxed mb-6">
+                                        Our advanced AI analyzes your goals, experience level, and learning style to generate a personalized curriculum in seconds. Every lesson, project, and challenge is tailored specifically for you.
+                                    </p>
+                                    
+                                    {/* Features Grid */}
+                                    <div className="grid grid-cols-2 gap-3 mb-6">
+                                        <div className="flex items-center justify-end gap-2 text-sm text-slate-300">
+                                            <span>Personalized Lessons</span>
+                                            <CheckCircle2 className="w-5 h-5 text-purple-400" />
+                                        </div>
+                                        <div className="flex items-center justify-end gap-2 text-sm text-slate-300">
+                                            <span>Adaptive Difficulty</span>
+                                            <CheckCircle2 className="w-5 h-5 text-purple-400" />
+                                        </div>
+                                        <div className="flex items-center justify-end gap-2 text-sm text-slate-300">
+                                            <span>Real Projects</span>
+                                            <CheckCircle2 className="w-5 h-5 text-purple-400" />
+                                        </div>
+                                        <div className="flex items-center justify-end gap-2 text-sm text-slate-300">
+                                            <span>24/7 AI Tutor</span>
+                                            <CheckCircle2 className="w-5 h-5 text-purple-400" />
+                                        </div>
+                                    </div>
+
+                                    <div className="flex items-center justify-end gap-2 text-sm text-slate-400">
+                                        <Zap className="w-4 h-4 text-purple-400" />
+                                        <span>Instant generation</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Mobile Content */}
+                            <div className="ml-16 md:hidden">
+                                <div className="mb-6 relative group inline-block">
+                                    <div className="absolute inset-0 bg-purple-500 rounded-2xl blur-xl opacity-50"></div>
+                                    <div className="relative w-20 h-20 rounded-2xl bg-gradient-to-br from-purple-600 to-purple-700 flex items-center justify-center border-4 border-slate-900">
+                                        <span className="text-3xl font-black text-white">02</span>
+                                    </div>
+                                </div>
+
+                                <div className="group cursor-default">
+                                    <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-purple-500/10 text-purple-400 rounded-full text-xs font-bold mb-4 uppercase tracking-wider border border-purple-500/20">
+                                        <Cpu className="w-3.5 h-3.5" />
+                                        AI-Powered Magic
+                                    </div>
+                                    <h3 className="text-3xl font-bold text-white mb-4 group-hover:text-purple-400 transition-colors">
+                                        Get Your Custom Curriculum
+                                    </h3>
+                                    <p className="text-slate-300 text-lg leading-relaxed mb-6">
+                                        Our advanced AI analyzes your goals, experience level, and learning style to generate a personalized curriculum in seconds.
+                                    </p>
+                                    
+                                    <div className="grid grid-cols-2 gap-3 mb-6">
+                                        <div className="flex items-center gap-2 text-sm text-slate-300">
+                                            <CheckCircle2 className="w-5 h-5 text-purple-400" />
+                                            <span>Personalized</span>
+                                        </div>
+                                        <div className="flex items-center gap-2 text-sm text-slate-300">
+                                            <CheckCircle2 className="w-5 h-5 text-purple-400" />
+                                            <span>Adaptive</span>
+                                        </div>
+                                        <div className="flex items-center gap-2 text-sm text-slate-300">
+                                            <CheckCircle2 className="w-5 h-5 text-purple-400" />
+                                            <span>Real Projects</span>
+                                        </div>
+                                        <div className="flex items-center gap-2 text-sm text-slate-300">
+                                            <CheckCircle2 className="w-5 h-5 text-purple-400" />
+                                            <span>24/7 Tutor</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Right: Number Badge (Desktop) */}
+                            <div className="hidden md:flex justify-start">
+                                <div className="relative group">
+                                    <div className="absolute inset-0 bg-purple-500 rounded-3xl blur-2xl opacity-50 group-hover:opacity-75 transition-opacity"></div>
+                                    <div className="relative w-32 h-32 rounded-3xl bg-gradient-to-br from-purple-600 to-purple-700 flex items-center justify-center border-4 border-slate-900 shadow-2xl group-hover:scale-110 group-hover:-rotate-6 transition-all duration-500">
+                                        <span className="text-5xl font-black text-white">02</span>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
-                    {/* Content Card */}
-                    <div className="flex-1 bg-gradient-to-br from-slate-800/80 to-slate-900/80 backdrop-blur-xl border border-slate-700/50 rounded-3xl p-8 group-hover:border-emerald-500/50 transition-all duration-500 group-hover:shadow-[0_0_60px_-15px_rgba(16,185,129,0.4)] group-hover:translate-x-2">
-                        <div className="flex items-start gap-6">
-                            <div className="flex-shrink-0 w-16 h-16 rounded-2xl bg-emerald-500/10 flex items-center justify-center group-hover:bg-emerald-500/20 transition-colors">
-                                <Trophy className="w-8 h-8 text-emerald-400" />
-                            </div>
-                            <div className="flex-1">
-                                <div className="inline-block px-3 py-1 bg-emerald-500/10 text-emerald-400 rounded-full text-xs font-bold mb-3 uppercase tracking-wider border border-emerald-500/20">
-                                    Build & Launch
-                                </div>
-                                <h3 className="text-2xl font-bold text-white mb-3">Master Through Practice</h3>
-                                <p className="text-slate-300 leading-relaxed mb-4">
-                                    Learn by building real projects that matter. Code directly in your browser, get instant feedback, earn achievements, and watch your skills grow. From your first "Hello World" to launching your own apps.
-                                </p>
-                                <div className="flex items-center gap-4 p-4 bg-emerald-500/5 border border-emerald-500/20 rounded-xl">
-                                    <div className="flex items-center gap-2">
-                                        <Zap className="w-5 h-5 text-emerald-400" />
-                                        <span className="text-sm font-medium text-emerald-300">Instant Code Execution</span>
+                    {/* Step 3 */}
+                    <div className="relative">
+                        {/* Timeline Dot */}
+                        <div className="absolute left-1/2 -translate-x-1/2 w-6 h-6 rounded-full bg-emerald-500 border-4 border-slate-900 z-20 hidden md:block animate-pulse"></div>
+                        <div className="absolute left-8 -translate-x-1/2 w-6 h-6 rounded-full bg-emerald-500 border-4 border-slate-900 z-20 md:hidden animate-pulse"></div>
+                        
+                        {/* Content */}
+                        <div className="md:grid md:grid-cols-2 md:gap-16 items-center">
+                            {/* Left: Number Badge (Desktop) */}
+                            <div className="hidden md:flex justify-end">
+                                <div className="relative group">
+                                    <div className="absolute inset-0 bg-emerald-500 rounded-3xl blur-2xl opacity-50 group-hover:opacity-75 transition-opacity"></div>
+                                    <div className="relative w-32 h-32 rounded-3xl bg-gradient-to-br from-emerald-600 to-emerald-700 flex items-center justify-center border-4 border-slate-900 shadow-2xl group-hover:scale-110 group-hover:rotate-6 transition-all duration-500">
+                                        <span className="text-5xl font-black text-white">03</span>
                                     </div>
-                                    <div className="h-4 w-px bg-emerald-500/30"></div>
-                                    <div className="flex items-center gap-2">
-                                        <Rocket className="w-5 h-5 text-emerald-400" />
-                                        <span className="text-sm font-medium text-emerald-300">Portfolio Ready</span>
+                                </div>
+                            </div>
+
+                            {/* Right: Content Card */}
+                            <div className="ml-16 md:ml-0">
+                                {/* Mobile Number Badge */}
+                                <div className="md:hidden mb-6 relative group inline-block">
+                                    <div className="absolute inset-0 bg-emerald-500 rounded-2xl blur-xl opacity-50"></div>
+                                    <div className="relative w-20 h-20 rounded-2xl bg-gradient-to-br from-emerald-600 to-emerald-700 flex items-center justify-center border-4 border-slate-900">
+                                        <span className="text-3xl font-black text-white">03</span>
+                                    </div>
+                                </div>
+
+                                <div className="group cursor-default">
+                                    <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-emerald-500/10 text-emerald-400 rounded-full text-xs font-bold mb-4 uppercase tracking-wider border border-emerald-500/20">
+                                        <Trophy className="w-3.5 h-3.5" />
+                                        Build & Launch
+                                    </div>
+                                    <h3 className="text-3xl md:text-4xl font-bold text-white mb-4 group-hover:text-emerald-400 transition-colors">
+                                        Master Through Practice
+                                    </h3>
+                                    <p className="text-slate-300 text-lg leading-relaxed mb-6">
+                                        Learn by building real projects that matter. Write code directly in your browser, get instant feedback, earn achievements, and build a portfolio. From "Hello World" to launching your own applications.
+                                    </p>
+                                    
+                                    {/* Highlight Box */}
+                                    <div className="bg-gradient-to-r from-emerald-500/10 to-emerald-600/10 border border-emerald-500/20 rounded-2xl p-6 mb-6">
+                                        <div className="grid grid-cols-2 gap-4">
+                                            <div className="flex items-center gap-3">
+                                                <div className="w-10 h-10 rounded-xl bg-emerald-500/20 flex items-center justify-center">
+                                                    <Zap className="w-5 h-5 text-emerald-400" />
+                                                </div>
+                                                <div>
+                                                    <div className="text-sm font-bold text-emerald-300">Instant Execution</div>
+                                                    <div className="text-xs text-slate-400">Run code in browser</div>
+                                                </div>
+                                            </div>
+                                            <div className="flex items-center gap-3">
+                                                <div className="w-10 h-10 rounded-xl bg-emerald-500/20 flex items-center justify-center">
+                                                    <Rocket className="w-5 h-5 text-emerald-400" />
+                                                </div>
+                                                <div>
+                                                    <div className="text-sm font-bold text-emerald-300">Portfolio Ready</div>
+                                                    <div className="text-xs text-slate-400">Showcase projects</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div className="flex items-center gap-2 text-sm text-slate-400">
+                                        <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
+                                        <span>Start building in minutes</span>
                                     </div>
                                 </div>
                             </div>
@@ -304,32 +443,36 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onStart }) => {
                 </div>
             </div>
 
-            {/* CTA at bottom */}
-            <div className="mt-20 text-center">
-                <button 
-                    onClick={onStart}
-                    className="group relative inline-flex items-center justify-center px-10 py-5 text-lg font-bold text-white transition-all bg-gradient-to-r from-brand-600 via-purple-600 to-emerald-600 rounded-2xl hover:from-brand-500 hover:via-purple-500 hover:to-emerald-500 hover:scale-105 focus:outline-none focus:ring-4 focus:ring-brand-400/50 shadow-[0_0_40px_-10px_rgba(79,70,229,0.8)] hover:shadow-[0_0_60px_-10px_rgba(79,70,229,1)] animate-gradient bg-[length:200%_auto]"
-                >
-                    <Rocket className="mr-3 w-6 h-6 group-hover:animate-bounce" />
-                    Begin Your Journey Now
-                    <ArrowRight className="ml-3 w-6 h-6 group-hover:translate-x-2 transition-transform" />
-                </button>
-                <p className="mt-4 text-sm text-slate-400">
-                    <span className="inline-flex items-center gap-2">
-                        <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-                        Free Forever
-                    </span>
-                    <span className="mx-3 text-slate-700">•</span>
-                    <span className="inline-flex items-center gap-2">
-                        <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-                        No Credit Card
-                    </span>
-                    <span className="mx-3 text-slate-700">•</span>
-                    <span className="inline-flex items-center gap-2">
-                        <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-                        Start in 30 Seconds
-                    </span>
-                </p>
+            {/* Final CTA */}
+            <div className="mt-32 text-center">
+                <div className="inline-block relative group">
+                    <div className="absolute inset-0 bg-gradient-to-r from-brand-500 via-purple-500 to-emerald-500 rounded-3xl blur-2xl opacity-50 group-hover:opacity-75 transition-opacity"></div>
+                    <button 
+                        onClick={onStart}
+                        className="relative px-12 py-6 text-xl font-black text-white bg-gradient-to-r from-brand-600 via-purple-600 to-emerald-600 rounded-3xl hover:scale-105 transition-all duration-500 shadow-2xl flex items-center gap-4 animate-gradient bg-[length:200%_auto]"
+                    >
+                        <Rocket className="w-7 h-7 group-hover:animate-bounce" />
+                        Begin Your Journey Now
+                        <ArrowRight className="w-7 h-7 group-hover:translate-x-2 transition-transform" />
+                    </button>
+                </div>
+                
+                <div className="mt-8 flex items-center justify-center gap-8 text-sm text-slate-400">
+                    <div className="flex items-center gap-2">
+                        <CheckCircle2 className="w-5 h-5 text-emerald-400" />
+                        <span>100% Free Forever</span>
+                    </div>
+                    <div className="h-4 w-px bg-slate-700"></div>
+                    <div className="flex items-center gap-2">
+                        <CheckCircle2 className="w-5 h-5 text-emerald-400" />
+                        <span>No Credit Card</span>
+                    </div>
+                    <div className="h-4 w-px bg-slate-700"></div>
+                    <div className="flex items-center gap-2">
+                        <CheckCircle2 className="w-5 h-5 text-emerald-400" />
+                        <span>Start in 30 Seconds</span>
+                    </div>
+                </div>
             </div>
         </div>
 

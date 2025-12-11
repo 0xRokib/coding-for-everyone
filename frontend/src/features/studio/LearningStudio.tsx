@@ -2,7 +2,7 @@ import { BookOpen, CheckCircle, Code2, Lightbulb, MessageSquare, Play, Send, Ter
 import React, { useEffect, useRef, useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 import { chatWithTutor, simulateCodeExecution } from '../../services/gemini';
-import { Lesson, User } from '../../types';
+import { Lesson, User, UserPersona } from '../../types';
 
 interface LearningStudioProps {
   user: User;
@@ -41,7 +41,7 @@ export const LearningStudio: React.FC<LearningStudioProps> = ({ user }) => {
   const handleRunCode = async () => {
     setIsRunning(true);
     setOutput('Running...');
-    const result = await simulateCodeExecution(code, user.currentCurriculum?.language || 'python');
+    const result = await simulateCodeExecution(code, programmingLanguage);
     setOutput(result);
     setIsRunning(false);
   };
@@ -56,7 +56,7 @@ export const LearningStudio: React.FC<LearningStudioProps> = ({ user }) => {
 
     const helperHistory = chatHistory.map(h => ({ role: h.role, text: h.text }));
     
-    const response = await chatWithTutor(userMsg, helperHistory, user.persona, code);
+    const response = await chatWithTutor(userMsg, helperHistory, userPersona, code);
     
     setChatHistory(prev => [...prev, { role: 'model', text: response }]);
     setIsChatting(false);
@@ -127,7 +127,7 @@ export const LearningStudio: React.FC<LearningStudioProps> = ({ user }) => {
                   </div>
                   <div className="flex items-center gap-2 text-slate-400 text-sm font-mono">
                       <Code2 className="w-4 h-4" />
-                      main.{user.currentCurriculum?.language === 'python' ? 'py' : 'js'}
+                      main.{programmingLanguage === 'python' ? 'py' : 'js'}
                   </div>
                 </div>
                 <button 
