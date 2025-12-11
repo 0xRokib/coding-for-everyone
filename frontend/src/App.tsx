@@ -25,18 +25,20 @@ export default function App() {
   const navigate = useNavigate();
 
   return (
-    <Layout>
-      <Routes>
-        <Route path="/" element={<LandingPage onStart={() => navigate('/signup')} />} />
+    <Routes>
+        {/* Auth Routes (No Navbar/Footer) */}
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
+
+        {/* Main Layout Routes */}
+        <Route path="/" element={<Layout><LandingPage onStart={() => navigate('/signup')} /></Layout>} />
         
         {/* Protected Routes */}
         <Route 
             path="/dashboard" 
             element={
                 <ProtectedRoute>
-                    <Dashboard />
+                    <Layout><Dashboard /></Layout>
                 </ProtectedRoute>
             } 
         />
@@ -44,7 +46,7 @@ export default function App() {
             path="/onboarding" 
             element={
                 <ProtectedRoute>
-                    <Onboarding onComplete={() => navigate('/dashboard')} />
+                    <Layout><Onboarding onComplete={() => navigate('/dashboard')} /></Layout>
                 </ProtectedRoute>
             } 
         />
@@ -52,19 +54,18 @@ export default function App() {
             path="/course/:courseId" 
             element={
                 <ProtectedRoute>
-                    <LearningStudio />
+                    <Layout><LearningStudio /></Layout>
                 </ProtectedRoute>
             } 
         />
         
         {/* Public/Hybrid Routes */}
-        <Route path="/community" element={<Community />} />
-        <Route path="/roadmap" element={<Roadmap />} />
-        <Route path="/contact" element={<Contact />} />
+        <Route path="/community" element={<Layout><Community /></Layout>} />
+        <Route path="/roadmap" element={<Layout><Roadmap /></Layout>} />
+        <Route path="/contact" element={<Layout><Contact /></Layout>} />
 
         {/* Fallback */}
         <Route path="*" element={<Navigate to="/" />} />
       </Routes>
-    </Layout>
   );
 }

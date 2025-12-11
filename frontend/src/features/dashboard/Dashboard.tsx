@@ -2,7 +2,6 @@ import { ArrowRight, BookOpen, ChevronRight, Clock, Code2, Plus } from 'lucide-r
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { Layout } from '../../layout/Layout';
 import { Course, courseService } from '../../services/course.service';
 
 export const Dashboard = () => {
@@ -42,17 +41,14 @@ export const Dashboard = () => {
 
   if (!user) {
       return (
-          <Layout>
-              <div className="flex flex-col items-center justify-center min-h-[50vh] text-center">
-                  <h2 className="text-2xl font-bold text-white mb-4">Please sign in to view your dashboard</h2>
-                  <button onClick={() => navigate('/login')} className="bg-brand-600 text-white px-6 py-2 rounded-lg">Sign In</button>
-              </div>
-          </Layout>
+          <div className="flex flex-col items-center justify-center min-h-[50vh] text-center">
+              <h2 className="text-2xl font-bold text-white mb-4">Please sign in to view your dashboard</h2>
+              <button onClick={() => navigate('/login')} className="bg-brand-600 text-white px-6 py-2 rounded-lg">Sign In</button>
+          </div>
       )
   }
 
   return (
-    <Layout>
       <div className="space-y-8">
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -69,9 +65,9 @@ export const Dashboard = () => {
           </button>
         </div>
 
-        {/* Stats Grid (Placeholder for now) */}
+        {/* Stats Grid */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="bg-slate-900/50 border border-slate-800 rounded-2xl p-6">
+            <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6">
                 <div className="flex items-center gap-4 mb-4">
                     <div className="p-3 bg-blue-500/10 rounded-xl text-blue-400">
                         <BookOpen className="w-6 h-6" />
@@ -82,7 +78,7 @@ export const Dashboard = () => {
                     </div>
                 </div>
             </div>
-             <div className="bg-slate-900/50 border border-slate-800 rounded-2xl p-6">
+             <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6">
                 <div className="flex items-center gap-4 mb-4">
                     <div className="p-3 bg-emerald-500/10 rounded-xl text-emerald-400">
                         <Clock className="w-6 h-6" />
@@ -93,7 +89,7 @@ export const Dashboard = () => {
                     </div>
                 </div>
             </div>
-             <div className="bg-slate-900/50 border border-slate-800 rounded-2xl p-6">
+             <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6">
                 <div className="flex items-center gap-4 mb-4">
                     <div className="p-3 bg-purple-500/10 rounded-xl text-purple-400">
                         <Code2 className="w-6 h-6" />
@@ -116,7 +112,7 @@ export const Dashboard = () => {
           {isLoading ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {[1, 2, 3].map((i) => (
-                <div key={i} className="bg-slate-900/50 border border-slate-800 rounded-2xl h-64 animate-pulse"></div>
+                <div key={i} className="bg-slate-900 border border-slate-800 rounded-2xl h-64 animate-pulse"></div>
               ))}
             </div>
           ) : courses.length > 0 ? (
@@ -124,8 +120,8 @@ export const Dashboard = () => {
               {courses.map((course) => (
                 <div 
                     key={course.id} 
-                    onClick={() => navigate(`/course/${course.persona.toLowerCase()}-${course.id}`)} // Assuming ID mapping, need to fix CoursePage to fetch by ID or handle this
-                    className="group bg-slate-900/50 hover:bg-slate-800/50 border border-slate-800 hover:border-brand-500/50 rounded-2xl p-6 transition-all cursor-pointer relative overflow-hidden"
+                    onClick={() => navigate(`/course/${course.id}`)} 
+                    className="group bg-slate-900 hover:bg-slate-800 text-left border border-slate-800 hover:border-brand-500/50 rounded-2xl p-6 transition-all cursor-pointer relative overflow-hidden shadow-sm"
                 >
                   <div className="absolute top-0 right-0 p-6 opacity-0 group-hover:opacity-100 transition-opacity">
                       <ArrowRight className="w-5 h-5 text-brand-400 -rotate-45 group-hover:rotate-0 transition-transform duration-300" />
@@ -155,7 +151,7 @@ export const Dashboard = () => {
               ))}
             </div>
           ) : (
-            <div className="text-center py-20 bg-slate-900/30 border border-slate-800 border-dashed rounded-2xl flex flex-col items-center">
+            <div className="text-center py-20 bg-slate-900 border border-slate-800 border-dashed rounded-2xl flex flex-col items-center">
               <div className="w-16 h-16 bg-slate-800 rounded-full flex items-center justify-center mb-4">
                   <Code2 className="w-8 h-8 text-slate-500" />
               </div>
@@ -171,6 +167,5 @@ export const Dashboard = () => {
           )}
         </div>
       </div>
-    </Layout>
   );
 };
