@@ -38,9 +38,10 @@ type ErrorResponse struct {
 }
 
 type LessonPlan struct {
-	ID        int       `json:"id"`
-	Persona   string    `json:"persona"`
-	Goals     string    `json:"goals"`
-	Content   string    `json:"content"`
-	CreatedAt time.Time `json:"created_at"`
+	ID                 int       `json:"id"`
+	Persona            string    `json:"persona"`
+	Goals              string    `json:"goals"`
+	Content            string    `json:"content"`
+	CurrentLessonIndex int       `json:"current_lesson_index"`
+	CreatedAt          time.Time `json:"created_at"`
 }

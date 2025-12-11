@@ -1,6 +1,7 @@
 package store
 
 import (
+	"codefuture-backend/internal/models"
 	"database/sql"
 	"log"
 	"os"
@@ -49,6 +50,7 @@ func (s *Store) InitSchema() {
 		persona TEXT,
 		goals TEXT,
 		content TEXT,
+		current_lesson_index INTEGER DEFAULT 0,
 		created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
 		FOREIGN KEY(user_id) REFERENCES users(id)
 	);
@@ -122,6 +124,36 @@ func (s *Store) GetCoursesByUserID(userID int) ([]map[string]interface{}, error)
 		})
 	}
 	return courses, nil
+}
+
+func (s *Store) GetLatestLessonPlan(userID int) (*models.LessonPlan, error) {
+	if s.db == nil {
+		return nil, nil
+	}
+	var lp models.LessonPlan
+	// Fix: Ensure we scan current_lesson_index. If it's NULL (old schema), SQLite handles DEFAULT 0
+	err := s.db.QueryRow(`
+		SELECT id, persona, goals, content, current_lesson_index, created_at 
+		FROM lesson_plans 
+		WHERE user_id = ? 
+		ORDER BY created_at DESC 
+		LIMIT 1`, userID).Scan(&lp.ID, &lp.Persona, &lp.Goals, &lp.Content, &lp.CurrentLessonIndex, &lp.CreatedAt)
+
+	if err == sql.ErrNoRows {
+		return nil, nil
+	}
+	if err != nil {
+		return nil, err
+	}
+	return &lp, nil
+}
+
+func (s *Store) UpdateLessonProgress(planID int, lessonIndex int) error {
+	if s.db == nil {
+		return nil
+	}
+	_, err := s.db.Exec("UPDATE lesson_plans SET current_lesson_index = ? WHERE id = ?", lessonIndex, planID)
+	return err
 }
 
 func (s *Store) Close() {

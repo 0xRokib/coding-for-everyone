@@ -68,6 +68,10 @@ func main() {
 		}
 	}))
 
+	// Roadmap
+	http.HandleFunc("/api/roadmap", middleware.AuthMiddleware(h.HandleGetRoadmap))
+	http.HandleFunc("/api/roadmap/progress", middleware.AuthMiddleware(h.HandleUpdateProgress))
+
 	// 5. Start Server
 	log.Println("Backend server running on :8081")
 	if err := http.ListenAndServe(":8081", nil); err != nil {
