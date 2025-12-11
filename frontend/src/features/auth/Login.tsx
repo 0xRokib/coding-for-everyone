@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 
@@ -8,6 +8,7 @@ export const Login = () => {
     const [searchParams] = useSearchParams();
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const hasProcessedCallback = useRef(false);
 
     useEffect(() => {
         const token = searchParams.get('token');
@@ -15,7 +16,8 @@ export const Login = () => {
         const name = searchParams.get('name');
         const emailParam = searchParams.get('email');
         
-        if (token) {
+        if (token && !hasProcessedCallback.current) {
+            hasProcessedCallback.current = true;
             const user = {
                 id: Number(userId) || 0,
                 name: name || 'User',
@@ -25,7 +27,7 @@ export const Login = () => {
             login(token, user);
             navigate('/');
         }
-    }, [searchParams, login, navigate]);
+    }, [searchParams]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
