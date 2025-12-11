@@ -48,3 +48,20 @@ func (s *Store) GetUserByEmail(email string) (*models.User, error) {
 	}
 	return user, nil
 }
+
+func (s *Store) GetUserByID(id int) (*models.User, error) {
+	if s.db == nil {
+		return nil, fmt.Errorf("database not connected")
+	}
+
+	user := &models.User{}
+	query := `SELECT id, name, email, password, created_at FROM users WHERE id = ?`
+	err := s.db.QueryRow(query, id).Scan(&user.ID, &user.Name, &user.Email, &user.Password, &user.CreatedAt)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, nil // Not found
+		}
+		return nil, fmt.Errorf("error finding user: %v", err)
+	}
+	return user, nil
+}

@@ -59,6 +59,15 @@ func main() {
 	http.HandleFunc("/api/auth/github/login", h.HandleGitHubLogin)
 	http.HandleFunc("/api/auth/github/callback", h.HandleGitHubCallback)
 
+	// Community
+	http.HandleFunc("/api/community/posts", middleware.AuthMiddleware(func(w http.ResponseWriter, r *http.Request) {
+		if r.Method == "POST" {
+			h.HandleCreatePost(w, r)
+		} else {
+			h.HandleGetPosts(w, r)
+		}
+	}))
+
 	// 5. Start Server
 	log.Println("Backend server running on :8081")
 	if err := http.ListenAndServe(":8081", nil); err != nil {

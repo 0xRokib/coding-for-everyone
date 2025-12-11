@@ -38,18 +38,28 @@ func (s *Store) InitSchema() {
 	query := `
 	CREATE TABLE IF NOT EXISTS users (
 		id INTEGER PRIMARY KEY AUTOINCREMENT,
-		name TEXT NOT NULL,
-		email TEXT UNIQUE NOT NULL,
-		password TEXT NOT NULL,
+		email TEXT UNIQUE,
+		name TEXT,
+		password TEXT,
 		created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 	);
-
 	CREATE TABLE IF NOT EXISTS lesson_plans (
 		id INTEGER PRIMARY KEY AUTOINCREMENT,
 		user_id INTEGER,
 		persona TEXT,
 		goals TEXT,
 		content TEXT,
+		created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+		FOREIGN KEY(user_id) REFERENCES users(id)
+	);
+	CREATE TABLE IF NOT EXISTS posts (
+		id INTEGER PRIMARY KEY AUTOINCREMENT,
+		user_id INTEGER,
+		author_name TEXT,
+		title TEXT,
+		content TEXT,
+		topic TEXT,
+		likes INTEGER DEFAULT 0,
 		created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
 		FOREIGN KEY(user_id) REFERENCES users(id)
 	);

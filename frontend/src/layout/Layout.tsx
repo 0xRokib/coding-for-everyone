@@ -36,8 +36,26 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
               <button 
                 onClick={() => navigate('/onboarding')}
                 className="text-sm font-medium text-slate-400 hover:text-slate-200 transition-colors"
-                >
+              >
                 New Course
+              </button>
+              <button 
+                onClick={() => navigate('/roadmap')}
+                className={`text-sm font-medium transition-colors ${location.pathname === '/roadmap' ? 'text-brand-400' : 'text-slate-400 hover:text-slate-200'}`}
+              >
+                Roadmap
+              </button>
+              <button 
+                onClick={() => navigate('/community')}
+                className={`text-sm font-medium transition-colors ${location.pathname === '/community' ? 'text-brand-400' : 'text-slate-400 hover:text-slate-200'}`}
+              >
+                Community
+              </button>
+              <button 
+                onClick={() => navigate('/contact')}
+                className={`text-sm font-medium transition-colors ${location.pathname === '/contact' ? 'text-brand-400' : 'text-slate-400 hover:text-slate-200'}`}
+              >
+                Contact
               </button>
               
               <div className="h-4 w-px bg-slate-800"></div>
