@@ -71,10 +71,10 @@ export const Roadmap = () => {
   const lessons = content.lessons || [];
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-12">
-      <div className="text-center mb-16">
+    <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <div className="text-center mb-16 border-b border-slate-800 pb-10">
         <h1 className="text-4xl font-bold text-white mb-4">{content.title || "Your Learning Path"}</h1>
-        <p className="text-slate-400 max-w-2xl mx-auto">
+        <p className="text-slate-400 max-w-2xl mx-auto text-lg">
             {content.description || "Follow this path to master your goal."}
         </p>
       </div>
