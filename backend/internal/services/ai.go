@@ -28,7 +28,7 @@ func (s *AIService) Close() {
 }
 
 func (s *AIService) GenerateLessonPlan(persona, goals string) (string, error) {
-	model := s.client.GenerativeModel("gemini-1.5-flash")
+	model := s.client.GenerativeModel("gemini-2.0-flash-exp")
 	model.ResponseMIMEType = "application/json"
 
 	prompt := fmt.Sprintf(`
@@ -70,7 +70,7 @@ func (s *AIService) GenerateLessonPlan(persona, goals string) (string, error) {
 }
 
 func (s *AIService) Chat(ctx context.Context, persona, currentCode, message string, history []models.ChatHistory) (string, error) {
-	model := s.client.GenerativeModel("gemini-1.5-flash")
+	model := s.client.GenerativeModel("gemini-2.0-flash-exp")
 	model.SystemInstruction = &genai.Content{
 		Parts: []genai.Part{genai.Text(getSystemInstruction(persona))},
 	}
@@ -119,7 +119,7 @@ func (s *AIService) Chat(ctx context.Context, persona, currentCode, message stri
 }
 
 func (s *AIService) ExecuteCode(ctx context.Context, code, language string) (string, error) {
-	model := s.client.GenerativeModel("gemini-1.5-flash")
+	model := s.client.GenerativeModel("gemini-2.0-flash-exp")
 	prompt := fmt.Sprintf(`
       Act as a %s interpreter.
       Execute the following code and return ONLY the output (stdout).
