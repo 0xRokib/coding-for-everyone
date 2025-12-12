@@ -183,21 +183,29 @@ func (h *Handler) HandleContactSubmission(w http.ResponseWriter, r *http.Request
 	// 5. Send Real Emails (if configured)
 	if h.config.SMTPUser != "" && h.config.SMTPPass != "" {
 		// A. Send Notification to Admin
+		// Use a Goroutine to not block the request? No, keep it sync for now to debug.
 		err := h.sendHTMLEmail([]string{h.config.AdminEmail}, subject, body)
 		if err != nil {
-			log.Printf("Failed to send admin email: %v", err)
+			log.Printf("[Error] Failed to send admin email: %v", err)
 		} else {
-			log.Println("Admin notification sent to", h.config.AdminEmail)
+			log.Println("[Success] Admin notification sent to", h.config.AdminEmail)
 		}
 
 		// B. Send Confirmation to User
-		userSubject := "We received your message - Code Anyone"
-		userBody := fmt.Sprintf(userConfirmationTemplate, req.FirstName, safeMessage)
-		err = h.sendHTMLEmail([]string{req.Email}, userSubject, userBody)
-		if err != nil {
-			log.Printf("Failed to send user confirmation: %v", err)
+		userEmail := strings.TrimSpace(req.Email)
+		if userEmail != "" {
+			userSubject := "We received your message - Code Anyone"
+			userBody := fmt.Sprintf(userConfirmationTemplate, req.FirstName, safeMessage)
+
+			log.Printf("[Info] Attempting to send confirmation to user: %s", userEmail)
+			err = h.sendHTMLEmail([]string{userEmail}, userSubject, userBody)
+			if err != nil {
+				log.Printf("[Error] Failed to send user confirmation to %s: %v", userEmail, err)
+			} else {
+				log.Println("[Success] User confirmation sent to", userEmail)
+			}
 		} else {
-			log.Println("User confirmation sent to", req.Email)
+			log.Println("[Warning] No user email provided, skipping confirmation.")
 		}
 
 	} else {

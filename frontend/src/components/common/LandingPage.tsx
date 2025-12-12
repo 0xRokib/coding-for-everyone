@@ -8,6 +8,30 @@ interface LandingPageProps {
   hideNav?: boolean;
 }
 
+const Counter = ({ end, duration = 2000, suffix = '' }: { end: number, duration?: number, suffix?: string }) => {
+  const [count, setCount] = useState(0);
+
+  useEffect(() => {
+    let startTime: number | null = null;
+    const animate = (currentTime: number) => {
+      if (!startTime) startTime = currentTime;
+      const progress = Math.min((currentTime - startTime) / duration, 1);
+      
+      // Easing function (easeOutExpo)
+      const ease = progress === 1 ? 1 : 1 - Math.pow(2, -10 * progress);
+      
+      setCount(Math.floor(ease * end));
+
+      if (progress < 1) {
+        requestAnimationFrame(animate);
+      }
+    };
+    requestAnimationFrame(animate);
+  }, [end, duration]);
+
+  return <span>{count.toLocaleString()}{suffix}</span>;
+};
+
 export const LandingPage: React.FC<LandingPageProps> = ({ onStart, hideNav = false }) => {
   const navigate = useNavigate();
   const { user, logout } = useAuth();
@@ -172,22 +196,62 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onStart, hideNav = fal
           <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
         </button>
 
-        <p className="mt-4 text-sm text-slate-500">100% Free • No Sign Up Required • Start in 30 Seconds</p>
+        <p className="mt-4 text-sm text-slate-500">100% Free • Personalized AI • Start in 30 Seconds</p>
 
         {/* Stats */}
-        <div className="grid grid-cols-3 gap-8 mt-16 w-full max-w-3xl">
-          <div className="text-center">
-            <div className="text-3xl font-bold text-white mb-1">10K+</div>
-            <div className="text-sm text-slate-400">Everyone is Welcome</div>
-          </div>
-          <div className="text-center">
-            <div className="text-3xl font-bold text-white mb-1">50+</div>
-            <div className="text-sm text-slate-400">Missions Completed</div>
-          </div>
-          <div className="text-center">
-            <div className="text-3xl font-bold text-white mb-1">100%</div>
-            <div className="text-sm text-slate-400">Free Forever</div>
-          </div>
+        {/* Stats - Unique Data Stream Design */}
+        <div className="relative mt-20 w-full max-w-5xl px-4">
+             {/* Decorative Tech Line */}
+             <div className="absolute top-1/2 left-0 right-0 h-px bg-gradient-to-r from-transparent via-slate-700 to-transparent opacity-50 hidden md:block"></div>
+             
+             <div className="grid grid-cols-1 md:grid-cols-3 gap-12 md:gap-8 relative z-10">
+                 {/* Stat 1 */}
+                 <div className="flex flex-col items-center justify-center">
+                    <div className="relative">
+                        <div className="text-6xl md:text-7xl font-black text-transparent bg-clip-text bg-gradient-to-b from-white to-slate-500 drop-shadow-2xl">
+                            <Counter end={10} suffix="K+" duration={2500} />
+                        </div>
+                        {/* Glow effect behind number */}
+                        <div className="absolute -inset-4 bg-brand-500/20 blur-3xl rounded-full -z-10 animate-pulse"></div>
+                    </div>
+                    <div className="mt-2 text-center">
+                        <div className="text-brand-400 font-bold uppercase tracking-[0.2em] text-sm">Active Learners</div>
+                        <div className="text-slate-500 text-xs mt-1">Joining the revolution</div>
+                    </div>
+                 </div>
+
+                 {/* Stat 2 */}
+                 <div className="flex flex-col items-center justify-center relative">
+                    {/* Vertical Divider for Desktop */}
+                    <div className="absolute left-0 top-4 bottom-4 w-px bg-gradient-to-b from-transparent via-slate-700 to-transparent hidden md:block"></div>
+                    <div className="absolute right-0 top-4 bottom-4 w-px bg-gradient-to-b from-transparent via-slate-700 to-transparent hidden md:block"></div>
+
+                    <div className="relative">
+                        <div className="text-6xl md:text-7xl font-black text-transparent bg-clip-text bg-gradient-to-b from-white to-slate-500 drop-shadow-2xl">
+                             <Counter end={50} suffix="+" duration={2000} />
+                        </div>
+                         <div className="absolute -inset-4 bg-purple-500/20 blur-3xl rounded-full -z-10 animate-pulse" style={{animationDelay: '1s'}}></div>
+                    </div>
+                    <div className="mt-2 text-center">
+                        <div className="text-purple-400 font-bold uppercase tracking-[0.2em] text-sm">Daily Missions</div>
+                        <div className="text-slate-500 text-xs mt-1">Code written everyday</div>
+                    </div>
+                 </div>
+
+                 {/* Stat 3 */}
+                 <div className="flex flex-col items-center justify-center">
+                    <div className="relative">
+                        <div className="text-6xl md:text-7xl font-black text-transparent bg-clip-text bg-gradient-to-b from-white to-slate-500 drop-shadow-2xl">
+                             <Counter end={100} suffix="%" duration={3000} />
+                        </div>
+                         <div className="absolute -inset-4 bg-pink-500/20 blur-3xl rounded-full -z-10 animate-pulse" style={{animationDelay: '0.5s'}}></div>
+                    </div>
+                    <div className="mt-2 text-center">
+                        <div className="text-pink-400 font-bold uppercase tracking-[0.2em] text-sm">Free Access</div>
+                        <div className="text-slate-500 text-xs mt-1">No hidden fees</div>
+                    </div>
+                 </div>
+             </div>
         </div>
 
         {/* Feature Grid */}
@@ -391,7 +455,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onStart, hideNav = fal
                                         </div>
                                         <div className="flex items-center gap-2 text-slate-400 group-hover/content:text-emerald-400 transition-colors">
                                             <CheckCircle2 className="w-5 h-5 text-brand-400" />
-                                            <span className="font-medium">No signup required</span>
+                                            <span className="font-medium">Free Sign Up</span>
                                         </div>
                                     </div>
                                 </div>
