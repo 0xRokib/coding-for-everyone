@@ -21,8 +21,18 @@ func (s *Store) CreatePost(post *models.Post) error {
 	return nil
 }
 
-func (s *Store) GetPosts() ([]models.Post, error) {
-	rows, err := s.db.Query(`SELECT id, user_id, author_name, title, content, topic, likes, created_at FROM posts ORDER BY created_at DESC`)
+func (s *Store) GetPosts(topic string) ([]models.Post, error) {
+	query := `SELECT id, user_id, author_name, title, content, topic, likes, created_at FROM posts`
+	var args []interface{}
+
+	if topic != "" {
+		query += ` WHERE topic = ?`
+		args = append(args, topic)
+	}
+
+	query += ` ORDER BY created_at DESC`
+
+	rows, err := s.db.Query(query, args...)
 	if err != nil {
 		return nil, err
 	}

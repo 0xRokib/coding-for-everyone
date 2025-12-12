@@ -13,11 +13,16 @@ export interface Post {
 }
 
 export const communityService = {
-  getPosts: async (token?: string): Promise<Post[]> => {
+  getPosts: async (token?: string, topic?: string): Promise<Post[]> => {
+    let url = `${API_URL}/community/posts`;
+    if (topic && topic !== 'All') {
+        url += `?topic=${encodeURIComponent(topic)}`;
+    }
+
     const headers: any = { 'Content-Type': 'application/json' };
     if (token) headers['Authorization'] = `Bearer ${token}`;
 
-    const response = await fetch(`${API_URL}/community/posts`, {
+    const response = await fetch(url, {
         method: 'GET',
         headers
     });

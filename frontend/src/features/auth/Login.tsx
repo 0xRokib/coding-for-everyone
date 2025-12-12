@@ -1,3 +1,4 @@
+import { Code2 } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
@@ -25,7 +26,7 @@ export const Login = () => {
             };
             
             login(token, user);
-            navigate('/');
+            navigate('/dashboard');
         }
     }, [searchParams]);
 
@@ -33,7 +34,7 @@ export const Login = () => {
         e.preventDefault();
         try {
             await loginWithEmail(email, password);
-            navigate('/');
+            navigate('/dashboard');
         } catch (err) {
             // Error is handled in context
             console.error(err);
@@ -41,12 +42,24 @@ export const Login = () => {
     };
 
     return (
-        <div className="min-h-screen w-full flex bg-[#0B0F19] text-white font-sans selection:bg-brand-500/30">
+        <div className="min-h-screen w-full flex bg-slate-950 text-white font-sans selection:bg-brand-500/30">
+            {/* Navbar - Consistent with Landing */}
+            <nav className="absolute top-0 left-0 w-full p-6 flex justify-between items-center z-50">
+                <div onClick={() => navigate('/')} className="flex items-center gap-3 cursor-pointer group">
+                    <div className="relative w-10 h-10 bg-gradient-to-br from-brand-600 to-purple-600 rounded-xl flex items-center justify-center shadow-lg shadow-brand-500/20 group-hover:scale-105 transition-transform">
+                        <Code2 className="w-6 h-6 text-white" />
+                    </div>
+                    <span className="font-bold text-xl text-white tracking-tight group-hover:text-brand-200 transition-colors">Code Anyone</span>
+                </div>
+                <button onClick={() => navigate('/signup')} className="text-sm font-medium text-slate-400 hover:text-white transition-colors">
+                    Don't have an account? <span className="text-brand-400 hover:text-brand-300 ml-1">Sign up</span>
+                </button>
+            </nav>
             
-             {/* LEFT SIDE: Elegant AI Visual */}
-            <div className="hidden lg:flex w-[55%] relative bg-[#05080F] items-center justify-center p-12 overflow-hidden border-r border-white/5">
+            {/* LEFT SIDE: Elegant AI Visual */}
+            <div className="hidden lg:flex w-[55%] relative bg-slate-950 items-center justify-center p-12 overflow-hidden border-r border-slate-800/50">
                  {/* Modern Grid Background */}
-                <div className="absolute inset-0 bg-[linear-gradient(to_right,#1f2937_1px,transparent_1px),linear-gradient(to_bottom,#1f2937_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_50%,#000_70%,transparent_100%)] opacity-20" />
+                <div className="absolute inset-0 bg-[linear-gradient(to_right,#1e293b_1px,transparent_1px),linear-gradient(to_bottom,#1e293b_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_50%,#000_70%,transparent_100%)] opacity-20" />
                 
                 {/* Ambient Glows */}
                 <div className="absolute top-1/4 left-1/4 w-[600px] h-[600px] bg-brand-600/10 rounded-full blur-[100px] animate-pulse"></div>
@@ -116,7 +129,7 @@ export const Login = () => {
             </div>
 
             {/* RIGHT SIDE: Form Interface */}
-            <div className="w-full lg:w-[45%] flex flex-col justify-center px-8 sm:px-12 lg:px-16 xl:px-20 py-12 relative z-10 bg-[#0B0F19]">
+            <div className="w-full lg:w-[45%] flex flex-col justify-center px-8 sm:px-12 lg:px-16 xl:px-20 py-12 relative z-10 bg-slate-950">
                 <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-brand-500/20 to-transparent"></div>
                 
                 <div className="max-w-md w-full mx-auto">
@@ -154,10 +167,10 @@ export const Login = () => {
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                                     </svg>
                                 </div>
-                                <input 
-                                    type="email" 
-                                    className="w-full bg-[#131B2C] border border-slate-800 rounded-xl py-3.5 pl-11 pr-4 text-white placeholder:text-slate-600 focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 outline-none transition-all font-sans"
-                                    placeholder="name@company.com"
+                                    <input 
+                                        type="email" 
+                                        className="w-full bg-slate-900/50 border border-slate-800 rounded-xl py-3.5 pl-11 pr-4 text-white placeholder:text-slate-600 focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 outline-none transition-all font-sans"
+                                        placeholder="name@company.com"
                                     value={email}
                                     onChange={(e) => setEmail(e.target.value)}
                                     required
@@ -178,7 +191,7 @@ export const Login = () => {
                                 </div>
                                 <input 
                                     type="password" 
-                                    className="w-full bg-[#131B2C] border border-slate-800 rounded-xl py-3.5 pl-11 pr-4 text-white placeholder:text-slate-600 focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 outline-none transition-all font-sans"
+                                    className="w-full bg-slate-900/50 border border-slate-800 rounded-xl py-3.5 pl-11 pr-4 text-white placeholder:text-slate-600 focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 outline-none transition-all font-sans"
                                     placeholder="••••••••"
                                     value={password}
                                     onChange={(e) => setPassword(e.target.value)}
@@ -198,7 +211,7 @@ export const Login = () => {
                             <div className="w-full border-t border-slate-800"></div>
                         </div>
                         <div className="relative flex justify-center text-xs uppercase tracking-wider font-medium">
-                            <span className="bg-[#0B0F19] px-4 text-slate-500">Or continue with</span>
+                            <span className="bg-slate-950 px-4 text-slate-500">Or continue with</span>
                         </div>
                     </div>
 
@@ -207,7 +220,7 @@ export const Login = () => {
                         <button 
                             onClick={loginWithGoogle}
                             disabled={isLoading}
-                            className="flex items-center justify-center gap-3 bg-[#131B2C] hover:bg-[#1C2638] border border-slate-800 hover:border-slate-700 text-white font-medium py-3 px-4 rounded-xl transition-all disabled:opacity-70 text-sm h-12"
+                            className="flex items-center justify-center gap-3 bg-slate-900/50 hover:bg-slate-800 border border-slate-800 hover:border-slate-700 text-white font-medium py-3 px-4 rounded-xl transition-all disabled:opacity-70 text-sm h-12"
                         >
                             <svg className="w-5 h-5" viewBox="0 0 24 24">
                                 <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
@@ -220,7 +233,7 @@ export const Login = () => {
                         <button 
                             onClick={loginWithGithub}
                             disabled={isLoading}
-                            className="flex items-center justify-center gap-3 bg-[#131B2C] hover:bg-[#1C2638] border border-slate-800 hover:border-slate-700 text-white font-medium py-3 px-4 rounded-xl transition-all disabled:opacity-70 text-sm h-12"
+                            className="flex items-center justify-center gap-3 bg-slate-900/50 hover:bg-slate-800 border border-slate-800 hover:border-slate-700 text-white font-medium py-3 px-4 rounded-xl transition-all disabled:opacity-70 text-sm h-12"
                         >
                             <svg className="w-5 h-5 text-white" viewBox="0 0 24 24" fill="currentColor">
                                 <path fillRule="evenodd" clipRule="evenodd" d="M12 2C6.477 2 2 6.477 2 12c0 4.42 2.865 8.166 6.839 9.489.5.092.682-.217.682-.482 0-.237-.008-.866-.013-1.7-2.782.604-3.369-1.34-3.369-1.34-.454-1.156-1.11-1.462-1.11-1.462-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.087 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.269 2.75 1.025A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.294 2.747-1.025 2.747-1.025.546 1.377.203 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12c0-5.523-4.477-10-10-10z" />

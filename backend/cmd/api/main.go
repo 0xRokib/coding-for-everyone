@@ -50,6 +50,7 @@ func main() {
 	http.HandleFunc("/api/execute", h.HandleExecute)
 	http.HandleFunc("/api/math", h.HandleMath)
 	http.HandleFunc("/api/signup", h.HandleSignup)
+	http.HandleFunc("/api/contact", h.HandleContactSubmission)
 	http.HandleFunc("/api/login", h.HandleLogin)
 	http.HandleFunc("/api/auth/social-demo", h.HandleSocialLoginDemo)
 
@@ -60,10 +61,16 @@ func main() {
 	http.HandleFunc("/api/auth/github/callback", h.HandleGitHubCallback)
 
 	// Community
-	http.HandleFunc("/api/community/posts", middleware.AuthMiddleware(func(w http.ResponseWriter, r *http.Request) {
+	http.HandleFunc("/api/community/posts", middleware.OptionalAuthMiddleware(func(w http.ResponseWriter, r *http.Request) {
 		if r.Method == "POST" {
+			// Enforce Auth for Create Post
+			if r.Context().Value(middleware.UserIDKey) == nil {
+				http.Error(w, "Unauthorized", http.StatusUnauthorized)
+				return
+			}
 			h.HandleCreatePost(w, r)
 		} else {
+			// Public Read (GET)
 			h.HandleGetPosts(w, r)
 		}
 	}))
@@ -72,9 +79,46 @@ func main() {
 	http.HandleFunc("/api/roadmap", middleware.AuthMiddleware(h.HandleGetRoadmap))
 	http.HandleFunc("/api/roadmap/progress", middleware.AuthMiddleware(h.HandleUpdateProgress))
 
-	// 5. Start Server
+	// 5. Start Server with CORS
 	log.Println("Backend server running on :8081")
-	if err := http.ListenAndServe(":8081", nil); err != nil {
+
+	// Wrap the default mux with CORS middleware
+	handler := corsMiddleware(http.DefaultServeMux)
+
+	if err := http.ListenAndServe(":8081", handler); err != nil {
 		log.Fatal(err)
 	}
+}
+
+// corsMiddleware adds CORS headers to all responses
+func corsMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// Allow requests from both Vite dev server and other ports
+		origin := r.Header.Get("Origin")
+		allowedOrigins := []string{
+			"http://localhost:3000",
+			"http://localhost:5173",
+			"http://localhost:5174",
+		}
+
+		// Check if origin is in allowed list
+		for _, allowed := range allowedOrigins {
+			if origin == allowed {
+				w.Header().Set("Access-Control-Allow-Origin", origin)
+				break
+			}
+		}
+
+		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
+		w.Header().Set("Access-Control-Allow-Credentials", "true")
+
+		// Handle preflight requests
+		if r.Method == "OPTIONS" {
+			w.WriteHeader(http.StatusOK)
+			return
+		}
+
+		next.ServeHTTP(w, r)
+	})
 }

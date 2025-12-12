@@ -1,150 +1,269 @@
 package services
 
 import (
+	"bytes"
 	"context"
+	"encoding/json"
 	"fmt"
+	"io"
+	"net/http"
 
 	"codefuture-backend/internal/models"
-
-	"github.com/google/generative-ai-go/genai"
-	"google.golang.org/api/option"
 )
 
 type AIService struct {
-	client *genai.Client
+	apiKey string
+	client *http.Client
 }
 
 func NewAIService(apiKey string) (*AIService, error) {
-	ctx := context.Background()
-	client, err := genai.NewClient(ctx, option.WithAPIKey(apiKey))
-	if err != nil {
-		return nil, err
-	}
-	return &AIService{client: client}, nil
+	return &AIService{
+		apiKey: apiKey,
+		client: &http.Client{},
+	}, nil
 }
 
 func (s *AIService) Close() {
-	s.client.Close()
+	// No cleanup needed for HTTP client
+}
+
+// OpenRouter API structures
+type OpenRouterMessage struct {
+	Role    string `json:"role"`
+	Content string `json:"content"`
+}
+
+type OpenRouterRequest struct {
+	Model    string              `json:"model"`
+	Messages []OpenRouterMessage `json:"messages"`
+}
+
+type OpenRouterChoice struct {
+	Message OpenRouterMessage `json:"message"`
+}
+
+type OpenRouterResponse struct {
+	Choices []OpenRouterChoice `json:"choices"`
+	Error   *struct {
+		Message string `json:"message"`
+	} `json:"error,omitempty"`
 }
 
 func (s *AIService) GenerateLessonPlan(persona, goals string) (string, error) {
-	model := s.client.GenerativeModel("gemini-2.0-flash-exp")
-	model.ResponseMIMEType = "application/json"
+	prompt := fmt.Sprintf(`Create a curriculum outline for a user with the persona: %s.
+Their specific goal is: "%s".
 
-	prompt := fmt.Sprintf(`
-	Create a curriculum outline for a user with the persona: %s.
-	Their specific goal is: "%s".
-	
-	Generate a valid JSON object with the following structure:
+Generate a valid JSON object with the following structure:
+{
+	"title": "Course Title",
+	"description": "Short description",
+	"language": "python or javascript",
+	"lessons": [
 	{
-		"title": "Course Title",
-		"description": "Short description",
-		"language": "python or javascript",
-		"lessons": [
-		{
-			"id": "1",
-			"title": "Lesson Title",
-			"content": "A brief explanation of the concept (2-3 sentences)",
-			"initialCode": "Code snippet to start with"
-		}
-		]
+		"id": "1",
+		"title": "Lesson Title",
+		"content": "A brief explanation of the concept (2-3 sentences)",
+		"initialCode": "Code snippet to start with"
 	}
-	Provide ONLY the JSON. Generate 3-5 lessons.
-	`, persona, goals)
+	]
+}
+Provide ONLY the JSON. Generate 3-5 lessons.`, persona, goals)
 
-	resp, err := model.GenerateContent(context.Background(), genai.Text(prompt))
+	reqBody := OpenRouterRequest{
+		Model: "google/gemini-flash-1.5", // Free and available
+		Messages: []OpenRouterMessage{
+			{
+				Role:    "user",
+				Content: prompt,
+			},
+		},
+	}
+
+	jsonData, err := json.Marshal(reqBody)
 	if err != nil {
-		return "", fmt.Errorf("failed to generate lesson plan: %v", err)
+		return "", fmt.Errorf("failed to marshal request: %v", err)
 	}
 
-	if len(resp.Candidates) == 0 || len(resp.Candidates[0].Content.Parts) == 0 {
+	req, err := http.NewRequest("POST", "https://openrouter.ai/api/v1/chat/completions", bytes.NewBuffer(jsonData))
+	if err != nil {
+		return "", fmt.Errorf("failed to create request: %v", err)
+	}
+
+	req.Header.Set("Authorization", "Bearer "+s.apiKey)
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("HTTP-Referer", "http://localhost:5173")
+	req.Header.Set("X-Title", "Coding For Everyone")
+
+	resp, err := s.client.Do(req)
+	if err != nil {
+		return "", fmt.Errorf("API request failed: %v", err)
+	}
+	defer resp.Body.Close()
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return "", fmt.Errorf("failed to read response: %v", err)
+	}
+
+	var openRouterResp OpenRouterResponse
+	if err := json.Unmarshal(body, &openRouterResp); err != nil {
+		return "", fmt.Errorf("failed to parse response: %v", err)
+	}
+
+	if openRouterResp.Error != nil {
+		return "", fmt.Errorf("OpenRouter API error: %s", openRouterResp.Error.Message)
+	}
+
+	if len(openRouterResp.Choices) == 0 {
 		return "", fmt.Errorf("no response from AI")
 	}
 
-	text, ok := resp.Candidates[0].Content.Parts[0].(genai.Text)
-	if !ok {
-		return "", fmt.Errorf("unexpected response format")
-	}
+	content := openRouterResp.Choices[0].Message.Content
 
-	return string(text), nil
+	// Extract JSON from markdown code blocks if present
+	content = extractJSON(content)
+
+	fmt.Println("✅ Successfully generated curriculum using OpenRouter")
+	return content, nil
 }
 
 func (s *AIService) Chat(ctx context.Context, persona, currentCode, message string, history []models.ChatHistory) (string, error) {
-	model := s.client.GenerativeModel("gemini-2.0-flash-exp")
-	model.SystemInstruction = &genai.Content{
-		Parts: []genai.Part{genai.Text(getSystemInstruction(persona))},
+	systemPrompt := getSystemInstruction(persona)
+
+	contextPrompt := fmt.Sprintf(`Current Code in Editor:
+`+"```"+`
+%s
+`+"```"+`
+
+User Message: %s`, currentCode, message)
+
+	messages := []OpenRouterMessage{
+		{
+			Role:    "system",
+			Content: systemPrompt,
+		},
 	}
 
-	cs := model.StartChat()
-
-	if len(history) > 0 {
-		var genHistory []*genai.Content
-		for _, h := range history {
-			role := "user"
-			if h.Role == "model" {
-				role = "model"
-			}
-			genHistory = append(genHistory, &genai.Content{
-				Role:  role,
-				Parts: []genai.Part{genai.Text(h.Text)},
-			})
-		}
-		cs.History = genHistory
+	// Add history
+	for _, h := range history {
+		messages = append(messages, OpenRouterMessage{
+			Role:    h.Role,
+			Content: h.Text,
+		})
 	}
 
-	contextPrompt := fmt.Sprintf(`
-      Current Code in Editor:
-      `+"```"+`
-      %s
-      `+"```"+`
-      
-      User Message: %s
-    `, currentCode, message)
+	// Add current message
+	messages = append(messages, OpenRouterMessage{
+		Role:    "user",
+		Content: contextPrompt,
+	})
 
-	resp, err := cs.SendMessage(ctx, genai.Text(contextPrompt))
+	reqBody := OpenRouterRequest{
+		Model:    "google/gemini-flash-1.5",
+		Messages: messages,
+	}
+
+	jsonData, err := json.Marshal(reqBody)
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("failed to marshal request: %v", err)
 	}
 
-	if len(resp.Candidates) == 0 || len(resp.Candidates[0].Content.Parts) == 0 {
+	req, err := http.NewRequest("POST", "https://openrouter.ai/api/v1/chat/completions", bytes.NewBuffer(jsonData))
+	if err != nil {
+		return "", fmt.Errorf("failed to create request: %v", err)
+	}
+
+	req.Header.Set("Authorization", "Bearer "+s.apiKey)
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("HTTP-Referer", "http://localhost:5173")
+	req.Header.Set("X-Title", "Coding For Everyone")
+
+	resp, err := s.client.Do(req)
+	if err != nil {
+		return "", fmt.Errorf("API request failed: %v", err)
+	}
+	defer resp.Body.Close()
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return "", fmt.Errorf("failed to read response: %v", err)
+	}
+
+	var openRouterResp OpenRouterResponse
+	if err := json.Unmarshal(body, &openRouterResp); err != nil {
+		return "", fmt.Errorf("failed to parse response: %v", err)
+	}
+
+	if openRouterResp.Error != nil {
+		return "", fmt.Errorf("OpenRouter API error: %s", openRouterResp.Error.Message)
+	}
+
+	if len(openRouterResp.Choices) == 0 {
 		return "", fmt.Errorf("no response from AI")
 	}
 
-	text, ok := resp.Candidates[0].Content.Parts[0].(genai.Text)
-	if !ok {
-		return "", fmt.Errorf("unexpected response format")
-	}
-
-	return string(text), nil
+	return openRouterResp.Choices[0].Message.Content, nil
 }
 
 func (s *AIService) ExecuteCode(ctx context.Context, code, language string) (string, error) {
-	model := s.client.GenerativeModel("gemini-2.0-flash-exp")
-	prompt := fmt.Sprintf(`
-      Act as a %s interpreter.
-      Execute the following code and return ONLY the output (stdout).
-      If there is an error, return the error message as the interpreter would.
-      Do not provide any conversational text, just the execution result.
-      
-      Code:
-      %s
-    `, language, code)
+	prompt := fmt.Sprintf(`Act as a %s interpreter.
+Execute the following code and return ONLY the output (stdout).
+If there is an error, return the error message as the interpreter would.
+Do not provide any conversational text, just the execution result.
 
-	resp, err := model.GenerateContent(ctx, genai.Text(prompt))
-	if err != nil {
-		return "", err
+Code:
+%s`, language, code)
+
+	reqBody := OpenRouterRequest{
+		Model: "google/gemini-flash-1.5",
+		Messages: []OpenRouterMessage{
+			{
+				Role:    "user",
+				Content: prompt,
+			},
+		},
 	}
 
-	if len(resp.Candidates) == 0 || len(resp.Candidates[0].Content.Parts) == 0 {
+	jsonData, err := json.Marshal(reqBody)
+	if err != nil {
+		return "", fmt.Errorf("failed to marshal request: %v", err)
+	}
+
+	req, err := http.NewRequest("POST", "https://openrouter.ai/api/v1/chat/completions", bytes.NewBuffer(jsonData))
+	if err != nil {
+		return "", fmt.Errorf("failed to create request: %v", err)
+	}
+
+	req.Header.Set("Authorization", "Bearer "+s.apiKey)
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("HTTP-Referer", "http://localhost:5173")
+	req.Header.Set("X-Title", "Coding For Everyone")
+
+	resp, err := s.client.Do(req)
+	if err != nil {
+		return "", fmt.Errorf("API request failed: %v", err)
+	}
+	defer resp.Body.Close()
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return "", fmt.Errorf("failed to read response: %v", err)
+	}
+
+	var openRouterResp OpenRouterResponse
+	if err := json.Unmarshal(body, &openRouterResp); err != nil {
+		return "", fmt.Errorf("failed to parse response: %v", err)
+	}
+
+	if openRouterResp.Error != nil {
+		return "", fmt.Errorf("OpenRouter API error: %s", openRouterResp.Error.Message)
+	}
+
+	if len(openRouterResp.Choices) == 0 {
 		return "", fmt.Errorf("no response from AI")
 	}
 
-	text, ok := resp.Candidates[0].Content.Parts[0].(genai.Text)
-	if !ok {
-		return "", fmt.Errorf("unexpected response format")
-	}
-
-	return string(text), nil
+	return openRouterResp.Choices[0].Message.Content, nil
 }
 
 func getSystemInstruction(persona string) string {
@@ -158,4 +277,34 @@ func getSystemInstruction(persona string) string {
 	default:
 		return "You are a helpful and patient coding tutor."
 	}
+}
+
+// extractJSON extracts JSON from markdown code blocks
+func extractJSON(content string) string {
+	// Remove markdown code blocks if present
+	if len(content) > 7 && content[:3] == "```" {
+		// Find the end of the opening ```json or ```
+		start := 0
+		for i := 3; i < len(content); i++ {
+			if content[i] == '\n' {
+				start = i + 1
+				break
+			}
+		}
+
+		// Find the closing ```
+		end := len(content)
+		for i := len(content) - 1; i >= start; i-- {
+			if i >= 2 && content[i-2:i+1] == "```" {
+				end = i - 2
+				break
+			}
+		}
+
+		if start < end {
+			return content[start:end]
+		}
+	}
+
+	return content
 }

@@ -1,277 +1,180 @@
-import { ArrowRight, ChevronRight, Code2, Terminal } from 'lucide-react';
+import { ArrowRight, Brain, Code2, Rocket, Sparkles, Trophy } from 'lucide-react';
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { UserPersona } from '../../types';
+import { courseService } from '../../services/course.service';
 
 interface OnboardingProps {
-  onComplete: (profile: any) => void;
+  onComplete?: () => void;
 }
 
-export const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
-  const [currentStep, setCurrentStep] = useState(1);
-  const [name, setName] = useState('');
-  const [persona, setPersona] = useState<UserPersona | null>(null);
-  const [goal, setGoal] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-  const { token } = useAuth();
-
-  const personas = [
-    {
-      id: UserPersona.KID,
-      title: 'visual_learner',
-      description: 'Interactive examples with visual feedback',
-      codeExample: 'if (style === "visual") {\n  return show();\n}'
-    },
-    {
-      id: UserPersona.PROFESSIONAL,
-      title: 'career_focused',
-      description: 'Industry standards & best practices',
-      codeExample: 'const goal = "professional";\nbuildCareer(goal);'
-    },
-    {
-      id: UserPersona.DOCTOR_ENGINEER,
-      title: 'project_builder',
-      description: 'Learn by building real applications',
-      codeExample: 'function learn() {\n  while (true) build();\n}'
-    }
-  ];
-
-  const handleStart = async () => {
-    if (!name || !persona || !goal) return;
-    
-    setIsLoading(true);
-    
-    try {
-      const headers: any = { 'Content-Type': 'application/json' };
-      if (token) {
-        headers['Authorization'] = `Bearer ${token}`;
-      }
-
-      const response = await fetch('http://localhost:8081/api/lesson-plan', {
-        method: 'POST',
-        headers: headers,
-        body: JSON.stringify({ persona, goals: goal })
-      });
-      
-      const data = await response.json();
-      
-      if (!response.ok) {
-        throw new Error(data.error || 'Failed to generate curriculum');
-      }
-
-      const curriculumContent = data.text;
-      const curriculum = typeof curriculumContent === 'string' ? JSON.parse(curriculumContent) : curriculumContent;
-      
-      if (!curriculum || !curriculum.lessons) {
-          throw new Error("Invalid curriculum format received from AI");
-      }
-      
-      onComplete({
-        name,
-        persona,
-        goals: goal,
-        courseId: data.id,
-        currentCurriculum: curriculum,
-        progress: {
-          completedLessons: [],
-          currentLessonId: curriculum.lessons?.[0]?.id || '1',
-          xp: 0
-        }
-      });
-    } catch (error) {
-      console.error('Failed to generate curriculum:', error);
-      setIsLoading(false);
-    }
-  };
-
-  const canProceed = () => {
-    if (currentStep === 1) return name.trim().length > 0;
-    if (currentStep === 2) return persona !== null;
-    if (currentStep === 3) return goal.trim().length > 10;
-    return false;
-  };
-
-  const nextStep = () => {
-    if (canProceed() && currentStep < 3) {
-      setCurrentStep(currentStep + 1);
-    } else if (canProceed() && currentStep === 3) {
-      handleStart();
-    }
-  };
-
-  return (
-    <div className="min-h-screen bg-slate-900 flex items-center justify-center p-4 font-mono">
-      <div className="w-full max-w-3xl">
-        {/* Terminal Header */}
-        <div className="mb-4 flex items-center justify-between">
-          <div className="flex items-center gap-2 text-slate-500 text-sm">
-            <Terminal className="w-4 h-4" />
-            <span>~/setup</span>
-            <ChevronRight className="w-3 h-3" />
-            <span className="text-brand-400">step_{currentStep}</span>
-          </div>
-          <div className="flex items-center gap-3 text-xs text-slate-500">
-            <div className={`w-1.5 h-1.5 rounded-full ${currentStep >= 1 ? 'bg-brand-500' : 'bg-slate-700'}`}></div>
-            <div className={`w-1.5 h-1.5 rounded-full ${currentStep >= 2 ? 'bg-brand-500' : 'bg-slate-700'}`}></div>
-            <div className={`w-1.5 h-1.5 rounded-full ${currentStep >= 3 ? 'bg-brand-500' : 'bg-slate-700'}`}></div>
-          </div>
-        </div>
-
-        {/* Main Terminal Window */}
-        <div className="bg-slate-800/50 backdrop-blur-xl border border-slate-700/50 rounded-xl overflow-hidden">
-          {/* Window Controls */}
-          <div className="flex items-center justify-between px-4 py-2.5 bg-slate-900/50 border-b border-slate-700/50">
-            <div className="flex items-center gap-1.5">
-              <div className="w-2.5 h-2.5 rounded-full bg-slate-600"></div>
-              <div className="w-2.5 h-2.5 rounded-full bg-slate-600"></div>
-              <div className="w-2.5 h-2.5 rounded-full bg-slate-600"></div>
-            </div>
-            <div className="text-xs text-slate-500">setup.config.ts</div>
-            <div className="w-16"></div>
-          </div>
-
-          {/* Content */}
-          <div className="p-6 min-h-[400px]">
-            {/* Step 1: Name */}
-            {currentStep === 1 && (
-              <div className="space-y-4 animate-fadeIn">
-                <div className="space-y-1">
-                  <div className="text-sm text-slate-500">
-                    <span className="text-purple-400">const</span> <span className="text-brand-400">userName</span> <span className="text-purple-400">=</span>
-                  </div>
-                  <div className="text-xl text-white">What should we call you?</div>
-                  <div className="text-sm text-slate-500">// Enter your name</div>
-                </div>
-
-                <input
-                  type="text"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  onKeyPress={(e) => e.key === 'Enter' && canProceed() && nextStep()}
-                  placeholder='"John Doe"'
-                  className="w-full bg-slate-900/50 border border-slate-700 rounded-lg px-4 py-3 text-white placeholder:text-slate-600 focus:border-brand-500 focus:ring-1 focus:ring-brand-500/20 outline-none transition-all"
-                  autoFocus
-                />
-              </div>
-            )}
-
-            {/* Step 2: Persona */}
-            {currentStep === 2 && (
-              <div className="space-y-4 animate-fadeIn">
-                <div className="space-y-1">
-                  <div className="text-sm text-slate-500">
-                    <span className="text-purple-400">interface</span> <span className="text-brand-400">LearningStyle</span>
-                  </div>
-                  <div className="text-xl text-white">Select your learning mode</div>
-                  <div className="text-sm text-slate-500">// Choose your approach</div>
-                </div>
-
-                <div className="space-y-2">
-                  {personas.map((p, idx) => (
-                    <button
-                      key={p.id}
-                      onClick={() => setPersona(p.id)}
-                      className={`w-full text-left p-4 rounded-lg border transition-all ${
-                        persona === p.id
-                          ? 'border-brand-500 bg-brand-500/5'
-                          : 'border-slate-700 hover:border-slate-600'
-                      }`}
-                    >
-                      <div className="flex items-start justify-between mb-2">
-                        <div className="flex items-center gap-2">
-                          <span className={`text-xs ${persona === p.id ? 'text-brand-400' : 'text-slate-500'}`}>
-                            [{idx + 1}]
-                          </span>
-                          <span className={`text-sm ${persona === p.id ? 'text-brand-400' : 'text-white'}`}>
-                            {p.title}
-                          </span>
-                          {persona === p.id && (
-                            <span className="text-xs text-emerald-400">← selected</span>
-                          )}
-                        </div>
-                      </div>
-                      <div className="text-xs text-slate-400 mb-2 ml-6">{p.description}</div>
-                      <div className="text-xs p-2 rounded bg-slate-900/50 border border-slate-700/50 ml-6">
-                        <pre className="text-slate-500">{p.codeExample}</pre>
-                      </div>
-                    </button>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Step 3: Goal */}
-            {currentStep === 3 && (
-              <div className="space-y-4 animate-fadeIn">
-                <div className="space-y-1">
-                  <div className="text-sm text-slate-500">
-                    <span className="text-purple-400">function</span> <span className="text-brand-400">defineGoal</span>()
-                  </div>
-                  <div className="text-xl text-white">What do you want to build?</div>
-                  <div className="text-sm text-slate-500">// Describe your project</div>
-                </div>
-
-                <textarea
-                  value={goal}
-                  onChange={(e) => setGoal(e.target.value)}
-                  placeholder='"Build a task management app..."'
-                  rows={5}
-                  className="w-full bg-slate-900/50 border border-slate-700 rounded-lg px-4 py-3 text-white placeholder:text-slate-600 focus:border-brand-500 focus:ring-1 focus:ring-brand-500/20 outline-none transition-all resize-none text-sm"
-                  autoFocus
-                />
-
-                <div className="p-3 bg-brand-500/5 border border-brand-500/20 rounded-lg">
-                  <div className="flex items-start gap-2">
-                    <Code2 className="w-4 h-4 text-brand-400 mt-0.5 flex-shrink-0" />
-                    <div className="text-xs text-slate-400">
-                      <span className="text-brand-400 font-semibold">Tip:</span> Be specific for better results
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* Footer */}
-          <div className="px-6 py-3 bg-slate-900/50 border-t border-slate-700/50 flex items-center justify-between">
-            <div className="text-xs text-slate-500">
-              Step {currentStep}/3
-            </div>
-
-            <button
-              onClick={nextStep}
-              disabled={!canProceed() || isLoading}
-              className="flex items-center gap-2 px-5 py-2 bg-brand-600 hover:bg-brand-500 text-white text-sm font-semibold rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-brand-600"
-            >
-              {isLoading ? (
-                <>
-                  <div className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-                  <span>Generating...</span>
-                </>
-              ) : currentStep === 3 ? (
-                <>
-                  <span>$ init</span>
-                  <ArrowRight className="w-4 h-4" />
-                </>
-              ) : (
-                <>
-                  <span>Continue</span>
-                  <ArrowRight className="w-4 h-4" />
-                </>
-              )}
-            </button>
-          </div>
-        </div>
-
-        {/* Bottom Status */}
-        <div className="mt-3 flex items-center justify-between text-xs text-slate-500">
-          <span>AI-powered curriculum</span>
-          <div className="flex items-center gap-1.5">
-            <div className="w-1.5 h-1.5 rounded-full bg-emerald-500"></div>
-            <span>Ready</span>
-          </div>
+const LoadingOverlay = ({ status }: { status: string }) => (
+  <div className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-slate-950/80 backdrop-blur-md transition-all duration-500">
+    <div className="relative">
+      <div className="w-24 h-24 bg-brand-500/20 rounded-full animate-pulse absolute inset-0 blur-xl"></div>
+      <div className="relative bg-slate-900 border border-slate-700/50 p-6 rounded-2xl shadow-2xl flex flex-col items-center gap-4">
+        <div className="w-10 h-10 border-4 border-brand-500/30 border-t-brand-500 rounded-full animate-spin"></div>
+        <div className="text-center">
+          <h3 className="text-xl font-bold text-white mb-1">Creating Course</h3>
+          <p className="text-slate-400 text-sm animate-pulse">{status}</p>
         </div>
       </div>
+    </div>
+  </div>
+);
+
+export const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
+  const navigate = useNavigate();
+  const { token } = useAuth();
+  const [loading, setLoading] = useState(false);
+  const [loadingStatus, setLoadingStatus] = useState('');
+  const [goalInput, setGoalInput] = useState('');
+
+  const handleCreateCourse = async (goal: string) => {
+    if (!goal.trim() || !token) return;
+    
+    setLoading(true);
+    setLoadingStatus('Analyzing your request...');
+    
+    const statusInterval = setInterval(() => {
+      setLoadingStatus(prev => {
+        if (prev === 'Analyzing your request...') return 'Designing curriculum...';
+        if (prev === 'Designing curriculum...') return 'Generating modules...';
+        if (prev === 'Generating modules...') return 'Finalizing course...';
+        return prev;
+      });
+    }, 2000);
+
+    try {
+      const newCourse = await courseService.createCourse(
+        {
+          persona: 'professional',
+          goals: goal
+        },
+        token
+      );
+      
+      setLoadingStatus('Redirecting to studio...');
+      // Force a slight delay to ensure redirect feels smooth
+      setTimeout(() => {
+        clearInterval(statusInterval);
+        navigate(`/studio/${newCourse.id}`);
+      }, 500);
+      
+    } catch (error) {
+      console.error('Failed to create course:', error);
+      alert('Failed to create course. Please try again.');
+      setLoading(false);
+      clearInterval(statusInterval);
+    }
+  };
+
+  const suggestions = [
+    { icon: Code2, label: "Web Development", goal: "I want to build a modern website with React", color: "from-blue-500 to-cyan-500" },
+    { icon: Rocket, label: "Game Dev", goal: "I want to create a 2D game with Python", color: "from-purple-500 to-pink-500" },
+    { icon: Brain, label: "Data Science", goal: "Teach me data analysis with Python", color: "from-emerald-500 to-teal-500" },
+    { icon: Sparkles, label: "AI Apps", goal: "How to build AI applications", color: "from-orange-500 to-red-500" },
+    { icon: Trophy, label: "DevOps", goal: "Master Docker and Kubernetes", color: "from-indigo-500 to-purple-500" },
+  ];
+
+  return (
+    <div className="flex-1 relative flex flex-col items-center justify-center p-6 md:p-12 overflow-hidden h-full">
+      {loading && <LoadingOverlay status={loadingStatus} />}
+
+      {/* Main Content */}
+        {/* Animated Background Effects */}
+        <div className="absolute inset-0 pointer-events-none overflow-hidden">
+          {/* <div className="absolute top-[20%] left-[20%] w-[500px] h-[500px] bg-brand-500/5 rounded-full blur-[100px] animate-pulse"></div> */}
+          {/* <div className="absolute bottom-[20%] right-[20%] w-[500px] h-[500px] bg-purple-500/5 rounded-full blur-[100px] animate-pulse" style={{animationDelay: '1.5s'}}></div> */}
+          {/* Grid Pattern is provided by layout now, but we can add specific glows here */}
+        </div>
+        
+        <div className="max-w-4xl w-full z-10 relative">
+           {/* Center Logo/Icon */}
+           <div className="flex justify-center mb-10">
+              <div className="relative group">
+                <div className="absolute -inset-1 bg-gradient-to-r from-brand-500 to-purple-500 rounded-3xl blur opacity-25 group-hover:opacity-75 transition duration-1000 group-hover:duration-200"></div>
+                <div className="relative w-20 h-20 bg-slate-900 rounded-2xl flex items-center justify-center border border-slate-700/50 shadow-2xl">
+                   <Brain className="w-10 h-10 text-brand-400" />
+                </div>
+              </div>
+           </div>
+
+           <h1 className="text-5xl md:text-6xl font-black text-center text-white mb-6 tracking-tight leading-tight">
+             What would you like to <br/>
+             <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-400 via-purple-400 to-emerald-400 animate-gradient-x">learn today?</span>
+           </h1>
+           
+           <p className="text-slate-400 text-center text-lg md:text-xl mb-12 max-w-2xl mx-auto leading-relaxed">
+             Enter any topic and our advanced AI will design a <span className="text-brand-200 font-medium">personalized curriculum</span> just for you in seconds.
+           </p>
+
+           {/* Large Search Input */}
+           <div className="relative group max-w-2xl mx-auto mb-16 transform transition-all duration-300 focus-within:scale-[1.02]">
+             <div className="absolute -inset-1 bg-gradient-to-r from-brand-500 via-purple-500 to-emerald-500 rounded-3xl opacity-30 group-hover:opacity-70 blur-xl transition duration-500 animate-tilt"></div>
+             <div className="relative flex items-center bg-slate-900/80 backdrop-blur-xl border border-slate-700/50 rounded-2xl p-2 shadow-2xl ring-1 ring-white/10">
+                <input
+                  id="course-input"
+                  type="text"
+                  value={goalInput}
+                  onChange={(e) => setGoalInput(e.target.value)}
+                  onKeyPress={(e) => e.key === 'Enter' && !loading && handleCreateCourse(goalInput)}
+                  placeholder="I want to learn how to build AI agents..."
+                  className="flex-1 bg-transparent border-none outline-none text-white placeholder:text-slate-500 px-6 py-5 text-lg font-medium"
+                  autoComplete="off"
+                  disabled={loading}
+                  autoFocus
+                />
+                <button
+                  onClick={() => handleCreateCourse(goalInput)}
+                  disabled={loading || !goalInput.trim()}
+                  className="p-4 bg-gradient-to-r from-brand-600 to-purple-600 hover:from-brand-500 hover:to-purple-500 text-white rounded-xl transition-all shadow-lg hover:shadow-brand-500/25 disabled:opacity-50 disabled:cursor-not-allowed group/btn relative overflow-hidden"
+                >
+                  <div className="absolute inset-0 bg-white/20 translate-y-full group-hover/btn:translate-y-0 transition-transform duration-300"></div>
+                  {loading ? (
+                    <div className="w-6 h-6 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                  ) : (
+                    <ArrowRight className="w-6 h-6 relative z-10" />
+                  )}
+                </button>
+             </div>
+           </div>
+
+           {/* Suggestion Pills */}
+           <div className="relative">
+             <div className="text-center mb-6">
+                <p className="text-xs font-bold text-slate-500 uppercase tracking-widest">Popular Suggestions</p>
+             </div>
+             <div className="flex flex-wrap justify-center gap-4 max-w-4xl mx-auto">
+                {suggestions.map((suggestion, idx) => {
+                  const Icon = suggestion.icon;
+                  return (
+                    <button
+                      key={idx}
+                      disabled={loading}
+                      onClick={() => {
+                          setGoalInput(suggestion.goal);
+                          handleCreateCourse(suggestion.goal);
+                      }}
+                      className="group flex items-center gap-3 px-5 py-3 bg-slate-800/40 hover:bg-slate-800/80 backdrop-blur-sm border border-slate-700/50 hover:border-brand-500/50 rounded-2xl transition-all duration-300 hover:transform hover:-translate-y-1 hover:shadow-lg hover:shadow-brand-500/10"
+                    >
+                      <div className={`p-1.5 rounded-lg bg-slate-800 group-hover:bg-white/10 transition-colors`}>
+                        <Icon className={`w-4 h-4 text-slate-400 group-hover:text-brand-400 transition-colors`} />
+                      </div>
+                      <span className="text-sm font-medium text-slate-300 group-hover:text-white">{suggestion.label}</span>
+                    </button>
+                  );
+                })}
+             </div>
+           </div>
+        </div>
+
+        {/* Footer */}
+        <div className="absolute bottom-6 left-0 right-0 text-center">
+            <p className="text-xs text-slate-600 font-medium">
+               Powered by Code Anyone • v1.0.0
+            </p>
+        </div>
     </div>
   );
 };

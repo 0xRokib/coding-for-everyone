@@ -1,7 +1,8 @@
 import React from 'react';
 import { Navigate, Route, Routes, useNavigate } from 'react-router-dom';
 import { useAuth } from './context/AuthContext';
-import { Layout } from './layout/Layout';
+import { FullPageLayout } from './layout/FullPageLayout';
+import { SidebarLayout } from './layout/SidebarLayout';
 
 // Pages
 import { LandingPage } from './components/common/LandingPage';
@@ -9,15 +10,24 @@ import { Login } from './features/auth/Login';
 import { Signup } from './features/auth/Signup';
 import { Community } from './features/community/Community';
 import { Contact } from './features/contact/Contact';
+import { CoursePage } from './features/course/CoursePage';
 import { Dashboard } from './features/dashboard/Dashboard';
+
 import { Onboarding } from './features/onboarding/Onboarding';
 import { Roadmap } from './features/roadmap/Roadmap';
 import { LearningStudio } from './features/studio/LearningStudio';
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { user, isLoading } = useAuth();
-  if (isLoading) return <div className="min-h-screen flex items-center justify-center text-white">Loading...</div>;
+  if (isLoading) return <div className="min-h-screen flex items-center justify-center text-white bg-slate-950">Loading...</div>;
   if (!user) return <Navigate to="/login" />;
+  return <>{children}</>;
+};
+
+const GuestRoute = ({ children }: { children: React.ReactNode }) => {
+  const { user, isLoading } = useAuth();
+  if (isLoading) return <div className="min-h-screen flex items-center justify-center text-white bg-slate-950">Loading...</div>;
+  if (user) return <Navigate to="/dashboard" />;
   return <>{children}</>;
 };
 
@@ -28,18 +38,29 @@ export default function App() {
   return (
     <Routes>
         {/* Auth Routes (No Navbar/Footer) */}
-        <Route path="/login" element={<Login />} />
-        <Route path="/signup" element={<Signup />} />
+        <Route path="/login" element={<GuestRoute><Login /></GuestRoute>} />
+        <Route path="/signup" element={<GuestRoute><Signup /></GuestRoute>} />
 
         {/* Main Layout Routes */}
-        <Route path="/" element={<Layout><LandingPage onStart={() => navigate(user ? '/dashboard' : '/signup')} /></Layout>} />
+        <Route 
+            path="/" 
+            element={
+                user ? (
+                    <FullPageLayout>
+                        <LandingPage hideNav={true} onStart={() => navigate('/dashboard')} />
+                    </FullPageLayout>
+                ) : (
+                    <LandingPage onStart={() => navigate('/signup')} />
+                )
+            } 
+        />
         
         {/* Protected Routes */}
         <Route 
             path="/dashboard" 
             element={
                 <ProtectedRoute>
-                    <Layout><Dashboard /></Layout>
+                    <FullPageLayout><Dashboard /></FullPageLayout>
                 </ProtectedRoute>
             } 
         />
@@ -47,7 +68,7 @@ export default function App() {
             path="/onboarding" 
             element={
                 <ProtectedRoute>
-                    <Layout><Onboarding onComplete={() => navigate('/dashboard')} /></Layout>
+                    <SidebarLayout><Onboarding onComplete={() => navigate('/dashboard')} /></SidebarLayout>
                 </ProtectedRoute>
             } 
         />
@@ -55,15 +76,23 @@ export default function App() {
             path="/course/:courseId" 
             element={
                 <ProtectedRoute>
-                    <Layout><LearningStudio user={user!} /></Layout>
+                    <FullPageLayout><CoursePage /></FullPageLayout>
+                </ProtectedRoute>
+            } 
+        />
+        <Route 
+            path="/studio/:courseId" 
+            element={
+                <ProtectedRoute>
+                    <LearningStudio user={user!} />
                 </ProtectedRoute>
             } 
         />
         
         {/* Public/Hybrid Routes */}
-        <Route path="/community" element={<Layout><Community /></Layout>} />
-        <Route path="/roadmap" element={<Layout><Roadmap /></Layout>} />
-        <Route path="/contact" element={<Layout><Contact /></Layout>} />
+        <Route path="/community" element={<FullPageLayout><Community /></FullPageLayout>} />
+        <Route path="/roadmap" element={<FullPageLayout><Roadmap /></FullPageLayout>} />
+        <Route path="/contact" element={<FullPageLayout><Contact /></FullPageLayout>} />
 
         {/* Fallback */}
         <Route path="*" element={<Navigate to="/" />} />

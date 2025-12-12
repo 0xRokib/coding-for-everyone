@@ -13,7 +13,8 @@ func (h *Handler) HandleGetPosts(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	posts, err := h.dataStore.GetPosts()
+	topic := r.URL.Query().Get("topic")
+	posts, err := h.dataStore.GetPosts(topic)
 	if err != nil {
 		sendJSONError(w, "Failed to fetch posts", http.StatusInternalServerError)
 		return

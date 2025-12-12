@@ -65,6 +65,14 @@ func (s *Store) InitSchema() {
 		created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
 		FOREIGN KEY(user_id) REFERENCES users(id)
 	);
+	CREATE TABLE IF NOT EXISTS contact_submissions (
+		id INTEGER PRIMARY KEY AUTOINCREMENT,
+		first_name TEXT,
+		last_name TEXT,
+		email TEXT,
+		message TEXT,
+		created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+	);
 	`
 	_, err := s.db.Exec(query)
 	if err != nil {
@@ -156,8 +164,24 @@ func (s *Store) UpdateLessonProgress(planID int, lessonIndex int) error {
 	return err
 }
 
+func (s *Store) DeleteCourse(userID int, courseID int) error {
+	if s.db == nil {
+		return nil
+	}
+	_, err := s.db.Exec("DELETE FROM lesson_plans WHERE id = ? AND user_id = ?", courseID, userID)
+	return err
+}
+
 func (s *Store) Close() {
 	if s.db != nil {
 		s.db.Close()
 	}
+}
+
+func (s *Store) CreateContactSubmission(sub *models.ContactSubmission) error {
+	if s.db == nil {
+		return nil
+	}
+	_, err := s.db.Exec("INSERT INTO contact_submissions (first_name, last_name, email, message) VALUES (?, ?, ?, ?)", sub.FirstName, sub.LastName, sub.Email, sub.Message)
+	return err
 }
