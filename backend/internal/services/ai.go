@@ -308,3 +308,68 @@ func extractJSON(content string) string {
 
 	return content
 }
+
+// GenerateEmailResponse uses AI to draft a polite, professional reply to a contact inquiry.
+func (s *AIService) GenerateEmailResponse(name, userMessage string) (string, error) {
+	prompt := fmt.Sprintf(`You are an AI support agent for "Code Anyone", a coding education platform.
+A user named "%s" sent this message:
+"%s"
+
+Draft a polite, professional, and helpful email reply.
+- Thank them for reaching out.
+- Acknowledge their specific question/message.
+- If it's a technical question, provide a brief, high-level helpful tip if possible, or say our engineers will look into it.
+- If it's general, be welcoming.
+- Keep it concise (under 150 words).
+- Sign off as "The Code Anyone Team".
+
+Return ONLY the body of the email text.`, name, userMessage)
+
+	reqBody := OpenRouterRequest{
+		Model: "google/gemini-flash-1.5",
+		Messages: []OpenRouterMessage{
+			{
+				Role:    "user",
+				Content: prompt,
+			},
+		},
+	}
+
+	jsonData, err := json.Marshal(reqBody)
+	if err != nil {
+		return "", fmt.Errorf("failed to marshal request: %v", err)
+	}
+
+	req, err := http.NewRequest("POST", "https://openrouter.ai/api/v1/chat/completions", bytes.NewBuffer(jsonData))
+	if err != nil {
+		return "", fmt.Errorf("failed to create request: %v", err)
+	}
+
+	// OpenRouter/Gemini usage via your API key
+	req.Header.Set("Authorization", "Bearer "+s.apiKey)
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("HTTP-Referer", "http://localhost:5173")
+	req.Header.Set("X-Title", "Coding For Everyone")
+
+	resp, err := s.client.Do(req)
+	if err != nil {
+		return "", fmt.Errorf("API request failed: %v", err)
+	}
+	defer resp.Body.Close()
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return "", fmt.Errorf("failed to read response: %v", err)
+	}
+
+	var openRouterResp OpenRouterResponse
+	if err := json.Unmarshal(body, &openRouterResp); err != nil {
+		return "Thank you for contacting us. We will review your message shortly.", nil
+	}
+
+	if len(openRouterResp.Choices) == 0 {
+		return "Thank you for your message. We have received it and will get back to you shortly.", nil
+	}
+
+	return openRouterResp.Choices[0].Message.Content, nil
+}
