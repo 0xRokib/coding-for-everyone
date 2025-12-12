@@ -80,6 +80,8 @@ func (s *Store) InitSchema() {
 	} else {
 		log.Println("Schema initialized successfully (SQLite)")
 	}
+	// Try to add user_id column if it doesn't exist (primitive migration)
+	_, _ = s.db.Exec("ALTER TABLE contact_submissions ADD COLUMN user_id INTEGER REFERENCES users(id)")
 }
 
 func (s *Store) Ping() error {
@@ -182,6 +184,7 @@ func (s *Store) CreateContactSubmission(sub *models.ContactSubmission) error {
 	if s.db == nil {
 		return nil
 	}
-	_, err := s.db.Exec("INSERT INTO contact_submissions (first_name, last_name, email, message) VALUES (?, ?, ?, ?)", sub.FirstName, sub.LastName, sub.Email, sub.Message)
+	_, err := s.db.Exec("INSERT INTO contact_submissions (first_name, last_name, email, message, user_id) VALUES (?, ?, ?, ?, ?)",
+		sub.FirstName, sub.LastName, sub.Email, sub.Message, sub.UserID)
 	return err
 }

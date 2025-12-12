@@ -17,6 +17,13 @@ type Config struct {
 	DatabasePath      string
 	GoogleOAuthConfig *oauth2.Config
 	GitHubOAuthConfig *oauth2.Config
+
+	// SMTP Config
+	SMTPHost   string
+	SMTPPort   string
+	SMTPUser   string
+	SMTPPass   string
+	AdminEmail string
 }
 
 func LoadConfig() *Config {
@@ -35,6 +42,13 @@ func LoadConfig() *Config {
 
 	// OAuth Configurations
 	callbackBase := getEnv("CALLBACK_URL_BASE", "http://localhost:8081/api/auth")
+
+	// Email Configuration
+	cfg.SMTPHost = getEnv("SMTP_HOST", "smtp.gmail.com")
+	cfg.SMTPPort = getEnv("SMTP_PORT", "587")
+	cfg.SMTPUser = os.Getenv("SMTP_USER")
+	cfg.SMTPPass = os.Getenv("SMTP_PASS")
+	cfg.AdminEmail = getEnv("ADMIN_EMAIL", "support@codeanyone.io")
 
 	cfg.GoogleOAuthConfig = &oauth2.Config{
 		RedirectURL:  callbackBase + "/google/callback",

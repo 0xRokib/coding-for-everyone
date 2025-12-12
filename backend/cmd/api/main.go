@@ -50,7 +50,7 @@ func main() {
 	http.HandleFunc("/api/execute", h.HandleExecute)
 	http.HandleFunc("/api/math", h.HandleMath)
 	http.HandleFunc("/api/signup", h.HandleSignup)
-	http.HandleFunc("/api/contact", h.HandleContactSubmission)
+	http.HandleFunc("/api/contact", middleware.OptionalAuthMiddleware(h.HandleContactSubmission))
 	http.HandleFunc("/api/login", h.HandleLogin)
 	http.HandleFunc("/api/auth/social-demo", h.HandleSocialLoginDemo)
 
