@@ -3,6 +3,7 @@ package handlers
 import (
 	"encoding/json"
 	"net/http"
+	"strconv"
 
 	"codefuture-backend/internal/config"
 	"codefuture-backend/internal/middleware"
@@ -134,6 +135,30 @@ func (h *Handler) HandleGetCourses(w http.ResponseWriter, r *http.Request) {
 	userID, ok := r.Context().Value(middleware.UserIDKey).(int)
 	if !ok {
 		sendJSONError(w, "Unauthorized", http.StatusUnauthorized)
+		return
+	}
+
+	// Refactoring HandleGetCourses to switch on method
+	if r.Method == "DELETE" {
+		idStr := r.URL.Query().Get("id")
+		if idStr == "" {
+			sendJSONError(w, "Missing id parameter", http.StatusBadRequest)
+			return
+		}
+
+		courseID, err := strconv.Atoi(idStr)
+		if err != nil {
+			sendJSONError(w, "Invalid id parameter", http.StatusBadRequest)
+			return
+		}
+
+		if err := h.dataStore.DeleteCourse(userID, courseID); err != nil {
+			sendJSONError(w, "Failed to delete course", http.StatusInternalServerError)
+			return
+		}
+
+		w.WriteHeader(http.StatusOK)
+		json.NewEncoder(w).Encode(map[string]string{"status": "deleted"})
 		return
 	}
 

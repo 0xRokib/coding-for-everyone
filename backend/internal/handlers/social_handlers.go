@@ -106,5 +106,5 @@ func (h *Handler) processSocialLogin(w http.ResponseWriter, r *http.Request, nam
 	token, _ := generateToken(user.ID)
 
 	// Redirect to frontend with token
-	http.Redirect(w, r, fmt.Sprintf("%s/login?token=%s&user_id=%d&name=%s", h.config.FrontendURL, token, user.ID, user.Name), http.StatusTemporaryRedirect)
+	http.Redirect(w, r, fmt.Sprintf("%s/login?token=%s&user_id=%d&name=%s&email=%s", h.config.FrontendURL, token, user.ID, user.Name, user.Email), http.StatusTemporaryRedirect)
 }

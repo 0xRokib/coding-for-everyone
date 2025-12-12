@@ -1,227 +1,180 @@
-import { ArrowRight, Rocket, Sparkles } from 'lucide-react';
+import { ArrowRight, Brain, Code2, Rocket, Sparkles, Trophy } from 'lucide-react';
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { UserPersona } from '../../types';
+import { courseService } from '../../services/course.service';
 
 interface OnboardingProps {
-  onComplete: (profile: any) => void;
+  onComplete?: () => void;
 }
 
+const LoadingOverlay = ({ status }: { status: string }) => (
+  <div className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-slate-950/80 backdrop-blur-md transition-all duration-500">
+    <div className="relative">
+      <div className="w-24 h-24 bg-brand-500/20 rounded-full animate-pulse absolute inset-0 blur-xl"></div>
+      <div className="relative bg-slate-900 border border-slate-700/50 p-6 rounded-2xl shadow-2xl flex flex-col items-center gap-4">
+        <div className="w-10 h-10 border-4 border-brand-500/30 border-t-brand-500 rounded-full animate-spin"></div>
+        <div className="text-center">
+          <h3 className="text-xl font-bold text-white mb-1">Creating Course</h3>
+          <p className="text-slate-400 text-sm animate-pulse">{status}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+);
+
 export const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
-  const [name, setName] = useState('');
-  const [persona, setPersona] = useState<UserPersona | null>(null);
-  const [goal, setGoal] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
+  const navigate = useNavigate();
   const { token } = useAuth();
+  const [loading, setLoading] = useState(false);
+  const [loadingStatus, setLoadingStatus] = useState('');
+  const [goalInput, setGoalInput] = useState('');
 
-  const personas = [
-    {
-      id: UserPersona.KID,
-      title: 'Visual Learner',
-      description: 'Fun, visual, and simple explanations.',
-      icon: '🎨',
-      color: 'from-pink-500 to-purple-500'
-    },
-    {
-      id: UserPersona.PROFESSIONAL,
-      title: 'Career Focused',
-      description: 'Fast-track to professional skills.',
-      icon: '💼',
-      color: 'from-blue-500 to-cyan-500'
-    },
-    {
-      id: UserPersona.DOCTOR_ENGINEER,
-      title: 'Project Builder',
-      description: 'Learn by building real useful tools.',
-      icon: '🚀',
-      color: 'from-emerald-500 to-teal-500'
-    }
-  ];
+  const handleCreateCourse = async (goal: string) => {
+    if (!goal.trim() || !token) return;
+    
+    setLoading(true);
+    setLoadingStatus('Analyzing your request...');
+    
+    const statusInterval = setInterval(() => {
+      setLoadingStatus(prev => {
+        if (prev === 'Analyzing your request...') return 'Designing curriculum...';
+        if (prev === 'Designing curriculum...') return 'Generating modules...';
+        if (prev === 'Generating modules...') return 'Finalizing course...';
+        return prev;
+      });
+    }, 2000);
 
-  const handleStart = async () => {
-    if (!name || !persona || !goal) return;
-    
-    setIsLoading(true);
-    
     try {
-      const headers: any = { 'Content-Type': 'application/json' };
-      if (token) {
-        headers['Authorization'] = `Bearer ${token}`;
-      }
-
-      const response = await fetch('http://localhost:8081/api/lesson-plan', {
-        method: 'POST',
-        headers: headers,
-        body: JSON.stringify({ persona, goals: goal })
-      });
+      const newCourse = await courseService.createCourse(
+        {
+          persona: 'professional',
+          goals: goal
+        },
+        token
+      );
       
-      const data = await response.json();
+      setLoadingStatus('Redirecting to studio...');
+      // Force a slight delay to ensure redirect feels smooth
+      setTimeout(() => {
+        clearInterval(statusInterval);
+        navigate(`/studio/${newCourse.id}`);
+      }, 500);
       
-      if (!response.ok) {
-        throw new Error(data.error || 'Failed to generate curriculum');
-      }
-
-      const curriculumContent = data.text;
-      const curriculum = typeof curriculumContent === 'string' ? JSON.parse(curriculumContent) : curriculumContent;
-      
-      if (!curriculum || !curriculum.lessons) {
-          throw new Error("Invalid curriculum format received from AI");
-      }
-      
-      onComplete({
-        name,
-        persona,
-        goals: goal,
-        courseId: data.id, // Pass DB ID
-        currentCurriculum: curriculum,
-        progress: {
-          completedLessons: [],
-          currentLessonId: curriculum.lessons?.[0]?.id || '1',
-          xp: 0
-        }
-      });
     } catch (error) {
-      console.error('Failed to generate curriculum:', error);
-      setIsLoading(false);
+      console.error('Failed to create course:', error);
+      alert('Failed to create course. Please try again.');
+      setLoading(false);
+      clearInterval(statusInterval);
     }
   };
 
+  const suggestions = [
+    { icon: Code2, label: "Web Development", goal: "I want to build a modern website with React", color: "from-blue-500 to-cyan-500" },
+    { icon: Rocket, label: "Game Dev", goal: "I want to create a 2D game with Python", color: "from-purple-500 to-pink-500" },
+    { icon: Brain, label: "Data Science", goal: "Teach me data analysis with Python", color: "from-emerald-500 to-teal-500" },
+    { icon: Sparkles, label: "AI Apps", goal: "How to build AI applications", color: "from-orange-500 to-red-500" },
+    { icon: Trophy, label: "DevOps", goal: "Master Docker and Kubernetes", color: "from-indigo-500 to-purple-500" },
+  ];
+
   return (
-    <div className="min-h-[calc(100vh-120px)] flex items-center justify-center p-6">
-      <div className="w-full max-w-4xl">
-        {/* Header */}
-        <div className="text-center mb-12">
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-brand-500/10 text-brand-400 text-sm font-medium mb-6 border border-brand-500/20">
-            <Sparkles className="w-4 h-4" />
-            Let's personalize your learning
-          </div>
-          <h1 className="text-4xl md:text-5xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-white to-slate-400">
-            Start Your Coding Journey
-          </h1>
-          <p className="text-lg text-slate-400 max-w-2xl mx-auto">
-            Tell us about yourself and we'll create a custom learning path just for you
-          </p>
+    <div className="flex-1 relative flex flex-col items-center justify-center p-6 md:p-12 overflow-hidden h-full">
+      {loading && <LoadingOverlay status={loadingStatus} />}
+
+      {/* Main Content */}
+        {/* Animated Background Effects */}
+        <div className="absolute inset-0 pointer-events-none overflow-hidden">
+          {/* <div className="absolute top-[20%] left-[20%] w-[500px] h-[500px] bg-brand-500/5 rounded-full blur-[100px] animate-pulse"></div> */}
+          {/* <div className="absolute bottom-[20%] right-[20%] w-[500px] h-[500px] bg-purple-500/5 rounded-full blur-[100px] animate-pulse" style={{animationDelay: '1.5s'}}></div> */}
+          {/* Grid Pattern is provided by layout now, but we can add specific glows here */}
         </div>
+        
+        <div className="max-w-4xl w-full z-10 relative">
+           {/* Center Logo/Icon */}
+           <div className="flex justify-center mb-10">
+              <div className="relative group">
+                <div className="absolute -inset-1 bg-gradient-to-r from-brand-500 to-purple-500 rounded-3xl blur opacity-25 group-hover:opacity-75 transition duration-1000 group-hover:duration-200"></div>
+                <div className="relative w-20 h-20 bg-slate-900 rounded-2xl flex items-center justify-center border border-slate-700/50 shadow-2xl">
+                   <Brain className="w-10 h-10 text-brand-400" />
+                </div>
+              </div>
+           </div>
 
-        {/* Onboarding Card */}
-        <div className="bg-gradient-to-br from-slate-800/50 to-slate-900/50 backdrop-blur-xl rounded-3xl border border-slate-700/50 p-8 md:p-12 shadow-2xl">
-          
-          {/* Step 1: Name */}
-          <div className="mb-10">
-            <label className="flex items-center gap-2 text-sm font-semibold text-slate-300 mb-3">
-              <span className="flex items-center justify-center w-6 h-6 rounded-full bg-brand-500/20 text-brand-400 text-xs">1</span>
-              What should we call you?
-            </label>
-            <input
-              type="text"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder="Enter your name..."
-              className="w-full bg-slate-950 border border-slate-700 rounded-xl px-6 py-4 text-lg text-white placeholder:text-slate-500 focus:ring-2 focus:ring-brand-500 focus:border-transparent outline-none transition-all"
-              autoFocus
-            />
-          </div>
+           <h1 className="text-5xl md:text-6xl font-black text-center text-white mb-6 tracking-tight leading-tight">
+             What would you like to <br/>
+             <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-400 via-purple-400 to-emerald-400 animate-gradient-x">learn today?</span>
+           </h1>
+           
+           <p className="text-slate-400 text-center text-lg md:text-xl mb-12 max-w-2xl mx-auto leading-relaxed">
+             Enter any topic and our advanced AI will design a <span className="text-brand-200 font-medium">personalized curriculum</span> just for you in seconds.
+           </p>
 
-          {/* Step 2: Persona */}
-          <div className="mb-10">
-            <label className="flex items-center gap-2 text-sm font-semibold text-slate-300 mb-4">
-              <span className="flex items-center justify-center w-6 h-6 rounded-full bg-brand-500/20 text-brand-400 text-xs">2</span>
-              Choose your learning style
-            </label>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {personas.map((p) => (
+           {/* Large Search Input */}
+           <div className="relative group max-w-2xl mx-auto mb-16 transform transition-all duration-300 focus-within:scale-[1.02]">
+             <div className="absolute -inset-1 bg-gradient-to-r from-brand-500 via-purple-500 to-emerald-500 rounded-3xl opacity-30 group-hover:opacity-70 blur-xl transition duration-500 animate-tilt"></div>
+             <div className="relative flex items-center bg-slate-900/80 backdrop-blur-xl border border-slate-700/50 rounded-2xl p-2 shadow-2xl ring-1 ring-white/10">
+                <input
+                  id="course-input"
+                  type="text"
+                  value={goalInput}
+                  onChange={(e) => setGoalInput(e.target.value)}
+                  onKeyPress={(e) => e.key === 'Enter' && !loading && handleCreateCourse(goalInput)}
+                  placeholder="I want to learn how to build AI agents..."
+                  className="flex-1 bg-transparent border-none outline-none text-white placeholder:text-slate-500 px-6 py-5 text-lg font-medium"
+                  autoComplete="off"
+                  disabled={loading}
+                  autoFocus
+                />
                 <button
-                  key={p.id}
-                  onClick={() => setPersona(p.id)}
-                  className={`group relative p-6 rounded-2xl border-2 transition-all text-left ${
-                    persona === p.id
-                      ? 'border-brand-500 bg-brand-500/10 shadow-lg shadow-brand-500/20'
-                      : 'border-slate-700 bg-slate-800/30 hover:border-slate-600 hover:bg-slate-800/50'
-                  }`}
+                  onClick={() => handleCreateCourse(goalInput)}
+                  disabled={loading || !goalInput.trim()}
+                  className="p-4 bg-gradient-to-r from-brand-600 to-purple-600 hover:from-brand-500 hover:to-purple-500 text-white rounded-xl transition-all shadow-lg hover:shadow-brand-500/25 disabled:opacity-50 disabled:cursor-not-allowed group/btn relative overflow-hidden"
                 >
-                  <div className={`text-4xl mb-3 transition-transform ${persona === p.id ? 'scale-110' : 'group-hover:scale-105'}`}>
-                    {p.icon}
-                  </div>
-                  <h3 className="font-bold text-white mb-1">{p.title}</h3>
-                  <p className="text-sm text-slate-400">{p.description}</p>
-                  
-                  {persona === p.id && (
-                    <div className="absolute top-3 right-3">
-                      <div className="w-6 h-6 rounded-full bg-brand-500 flex items-center justify-center">
-                        <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
-                        </svg>
-                      </div>
-                    </div>
+                  <div className="absolute inset-0 bg-white/20 translate-y-full group-hover/btn:translate-y-0 transition-transform duration-300"></div>
+                  {loading ? (
+                    <div className="w-6 h-6 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                  ) : (
+                    <ArrowRight className="w-6 h-6 relative z-10" />
                   )}
                 </button>
-              ))}
-            </div>
-          </div>
+             </div>
+           </div>
 
-          {/* Step 3: Goal */}
-          <div className="mb-10">
-            <label className="flex items-center gap-2 text-sm font-semibold text-slate-300 mb-3">
-              <span className="flex items-center justify-center w-6 h-6 rounded-full bg-brand-500/20 text-brand-400 text-xs">3</span>
-              What do you want to build or learn?
-            </label>
-            <textarea
-              value={goal}
-              onChange={(e) => setGoal(e.target.value)}
-              placeholder="E.g., I want to build a mobile app, create a website, automate tasks..."
-              rows={4}
-              className="w-full bg-slate-950 border border-slate-700 rounded-xl px-6 py-4 text-lg text-white placeholder:text-slate-500 focus:ring-2 focus:ring-brand-500 focus:border-transparent outline-none transition-all resize-none"
-            />
-            <p className="text-xs text-slate-500 mt-2">Be specific! The more details, the better your personalized course.</p>
-          </div>
-
-          {/* Start Button */}
-          <button
-            onClick={handleStart}
-            disabled={!name || !persona || !goal || isLoading}
-            className="group w-full relative overflow-hidden bg-gradient-to-r from-brand-600 to-purple-600 hover:from-brand-500 hover:to-purple-500 text-white font-semibold py-5 px-8 rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-brand-500/30 hover:shadow-xl hover:shadow-brand-500/40 disabled:hover:shadow-lg"
-          >
-            <span className="relative z-10 flex items-center justify-center gap-3 text-lg">
-              {isLoading ? (
-                <>
-                  <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-                  Creating your personalized course...
-                </>
-              ) : (
-                <>
-                  <Rocket className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-                  Start Learning Journey
-                  <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-                </>
-              )}
-            </span>
-            <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/10 to-white/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000"></div>
-          </button>
-
-          {/* Progress Indicator */}
-          <div className="mt-6 flex items-center justify-center gap-2">
-            <div className={`h-1.5 w-12 rounded-full transition-all ${name ? 'bg-brand-500' : 'bg-slate-700'}`}></div>
-            <div className={`h-1.5 w-12 rounded-full transition-all ${persona ? 'bg-brand-500' : 'bg-slate-700'}`}></div>
-            <div className={`h-1.5 w-12 rounded-full transition-all ${goal ? 'bg-brand-500' : 'bg-slate-700'}`}></div>
-          </div>
+           {/* Suggestion Pills */}
+           <div className="relative">
+             <div className="text-center mb-6">
+                <p className="text-xs font-bold text-slate-500 uppercase tracking-widest">Popular Suggestions</p>
+             </div>
+             <div className="flex flex-wrap justify-center gap-4 max-w-4xl mx-auto">
+                {suggestions.map((suggestion, idx) => {
+                  const Icon = suggestion.icon;
+                  return (
+                    <button
+                      key={idx}
+                      disabled={loading}
+                      onClick={() => {
+                          setGoalInput(suggestion.goal);
+                          handleCreateCourse(suggestion.goal);
+                      }}
+                      className="group flex items-center gap-3 px-5 py-3 bg-slate-800/40 hover:bg-slate-800/80 backdrop-blur-sm border border-slate-700/50 hover:border-brand-500/50 rounded-2xl transition-all duration-300 hover:transform hover:-translate-y-1 hover:shadow-lg hover:shadow-brand-500/10"
+                    >
+                      <div className={`p-1.5 rounded-lg bg-slate-800 group-hover:bg-white/10 transition-colors`}>
+                        <Icon className={`w-4 h-4 text-slate-400 group-hover:text-brand-400 transition-colors`} />
+                      </div>
+                      <span className="text-sm font-medium text-slate-300 group-hover:text-white">{suggestion.label}</span>
+                    </button>
+                  );
+                })}
+             </div>
+           </div>
         </div>
 
-        {/* Trust Indicators */}
-        <div className="mt-8 flex items-center justify-center gap-8 text-sm text-slate-500">
-          <div className="flex items-center gap-2">
-            <div className="w-2 h-2 rounded-full bg-emerald-400"></div>
-            AI-Powered
-          </div>
-          <div className="flex items-center gap-2">
-            <div className="w-2 h-2 rounded-full bg-blue-400"></div>
-            100% Free
-          </div>
-          <div className="flex items-center gap-2">
-            <div className="w-2 h-2 rounded-full bg-purple-400"></div>
-            No Credit Card
-          </div>
+        {/* Footer */}
+        <div className="absolute bottom-6 left-0 right-0 text-center">
+            <p className="text-xs text-slate-600 font-medium">
+               Powered by Code Anyone • v1.0.0
+            </p>
         </div>
-      </div>
     </div>
   );
 };
