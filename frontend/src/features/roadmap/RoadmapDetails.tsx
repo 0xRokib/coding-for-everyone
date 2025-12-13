@@ -1,7 +1,48 @@
-import { ArrowLeft, Code2, Cpu, Database, Globe, Layers, Layout, Lock, Server, Settings, Terminal, Zap } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { ArrowLeft, Brain, Code2, Cpu, Database, Globe, Layers, Layout, Lock, Server, Settings, Terminal, Zap } from 'lucide-react';
+import { ReactNode, useEffect, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { roadmapService } from '../../services/roadmap.service';
+
+const ScrollReveal = ({ children, className = '' }: { children: ReactNode; className?: string }) => {
+    const [isVisible, setIsVisible] = useState(false);
+    const ref = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        const observer = new IntersectionObserver(
+            ([entry]) => {
+                if (entry.isIntersecting) {
+                    setIsVisible(true);
+                    observer.unobserve(entry.target);
+                }
+            },
+            {
+                threshold: 0.1,
+                rootMargin: '50px'
+            }
+        );
+
+        if (ref.current) {
+            observer.observe(ref.current);
+        }
+
+        return () => {
+            if (ref.current) {
+                observer.unobserve(ref.current);
+            }
+        };
+    }, []);
+
+    return (
+        <div 
+            ref={ref} 
+            className={`transition-all duration-700 ease-out transform ${
+                isVisible ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 translate-y-8 scale-95'
+            } ${className}`}
+        >
+            {children}
+        </div>
+    );
+};
 
 // Type definitions
 type Priority = 'high' | 'medium' | 'low';
@@ -34,31 +75,31 @@ const ROADMAP_DATA: Record<string, RoadmapDefinition> = {
     'frontend': {
         id: 'frontend',
         title: 'Frontend Developer',
-        description: 'The complete guide to modern frontend development in 2025',
+        description: 'Master HTML, CSS, JavaScript, and React to build beautiful user interfaces.',
         sections: [
             {
-                title: 'The Internet',
+                title: 'The Internet & Web',
                 icon: Globe,
                 topics: [
                     { 
                         title: 'How the Internet Works', 
-                        description: 'Foundational knowledge required for all web developers.', 
+                        description: 'DNS, Domains, Hosting, and HTTP basics.', 
                         priority: 'high',
-                        technologies: ['DNS', 'HTTP/HTTPS', 'Domain Names', 'Hosting'],
+                        technologies: ['DNS', 'HTTP/HTTPS', 'Browsers'],
                         bookmarks: [
-                            { title: 'How does the Internet work? (MDN)', url: 'https://developer.mozilla.org/en-US/docs/Learn/Common_questions/Web_mechanics/How_does_the_Internet_work' },
-                            { title: 'Introduction to HTTP', url: 'https://developer.mozilla.org/en-US/docs/Web/HTTP/Overview' }
+                            { title: 'How the Internet Works (Video)', url: 'https://www.youtube.com/watch?v=DXv1_f3b6gw' },
+                            { title: 'MDN: How the Web Works', url: 'https://developer.mozilla.org/en-US/docs/Learn/Common_questions/Web_mechanics/How_does_the_Internet_work' }
                         ]
                     },
                     { 
                         title: 'Browsers', 
-                        description: 'Understanding the runtime environment.', 
+                        description: 'Rendering engine, parsing, and compositing.', 
                         priority: 'high',
-                        technologies: ['Rendering Engine', 'DevTools', 'Storage (Local/Session)'],
+                        technologies: ['V8 Engine', 'DOM', 'Render Tree'],
                         bookmarks: [
                             { title: 'Populating the page: how browsers work', url: 'https://developer.mozilla.org/en-US/docs/Web/Performance/How_browsers_work' }
                         ]
-                    },
+                    }
                 ]
             },
             {
@@ -66,195 +107,100 @@ const ROADMAP_DATA: Record<string, RoadmapDefinition> = {
                 icon: Layout,
                 topics: [
                     { 
-                        title: 'HTML5 Semantic', 
-                        description: 'Writing accessible and structured markup.', 
+                        title: 'Semantic HTML', 
+                        description: 'Structure your content meaningfully.', 
                         priority: 'high',
-                        technologies: ['Semantic Tags', 'Forms & Validations', 'SEO Basics', 'Accessibility (a11y)'],
+                        technologies: ['Tags', 'Forms', 'SEO', 'Accessibility'],
                         bookmarks: [
-                            { title: 'Semantic HTML', url: 'https://developer.mozilla.org/en-US/docs/Glossary/Semantics' }
+                            { title: 'Semantic HTML5 Guide', url: 'https://developer.mozilla.org/en-US/docs/Glossary/Semantics' },
+                            { title: 'A11y Project', url: 'https://www.a11yproject.com/' }
                         ]
                     },
-                    /* ... other HTML/CSS topics ... */
                     { 
-                         title: 'CSS Fundamentals', 
-                         description: 'Styling and layout engines.', 
-                         priority: 'high',
-                         technologies: ['Box Model', 'Flexbox', 'Grid', 'Selectors', 'Specificity'],
-                         bookmarks: [
-                             { title: 'CSS Box Model', url: 'https://developer.mozilla.org/en-US/docs/Learn/CSS/Building_blocks/The_box_model' },
-                             { title: 'A Complete Guide to Flexbox', url: 'https://css-tricks.com/snippets/css/a-guide-to-flexbox/' }
-                         ]
-                     },
-                     { 
-                         title: 'Modern CSS', 
-                         description: 'Variable usage and advanced selectors.', 
-                         priority: 'medium',
-                         technologies: ['CSS Variables', 'Pseudo-classes', 'Media Queries', 'Animations']
-                     },
+                        title: 'Modern CSS', 
+                        description: 'Layouts and styling.', 
+                        priority: 'high',
+                        technologies: ['Flexbox', 'Grid', 'Variables', 'Animations'],
+                        bookmarks: [
+                            { title: 'A Complete Guide to Flexbox', url: 'https://css-tricks.com/snippets/css/a-guide-to-flexbox/' },
+                            { title: 'Grid Garden Game', url: 'https://cssgridgarden.com/' }
+                        ]
+                    },
+                    { 
+                        title: 'Responsive Design', 
+                        description: 'Mobile-first approach.', 
+                        priority: 'high',
+                        technologies: ['Media Queries', 'Viewport'],
+                        bookmarks: [
+                            { title: 'Responsive Web Design Basics', url: 'https://web.dev/responsive-web-design-basics/' }
+                        ]
+                    }
                 ]
             },
-            /* ... rest of frontend ... */
             {
-                title: 'JavaScript',
+                title: 'JavaScript Ecosystem',
                 icon: Code2,
                 topics: [
                     { 
-                        title: 'JS Core', 
-                        description: 'The programming language of the web.', 
+                        title: 'JavaScript Core', 
+                        description: 'The language of the web.', 
                         priority: 'high',
-                        technologies: ['Variables', 'Data Types', 'Functions', 'Scopes', 'Hoisting', 'Closures'],
+                        technologies: ['ES6+', 'Async/Await', 'DOM Manipulation', 'Fetch API'],
                         bookmarks: [
-                            { title: 'The Modern JavaScript Tutorial', url: 'https://javascript.info/' }
-                        ]
-                    },
-                    /* ... rest ... */
-                    { 
-                        title: 'DOM Manipulation', 
-                        description: 'Interacting with the page structure.', 
-                        priority: 'high',
-                        technologies: ['Selectors', 'Event Listeners', 'Traversing', 'Manipulation']
-                    },
-                    { 
-                        title: 'Asynchronous JS', 
-                        description: 'Handling operations that take time.', 
-                        priority: 'high',
-                        technologies: ['Promises', 'Async/Await', 'Callbacks', 'Event Loop', 'Fetch API']
-                    },
-                ]
-            },
-            /* ... rest of frontend ... */
-            {
-                title: 'Version Control',
-                icon: Settings,
-                topics: [
-                    { 
-                        title: 'Git Basics', 
-                        description: 'Managing code history and collaboration.', 
-                        priority: 'high',
-                        technologies: ['add/commit', 'push/pull', 'branching', 'merging', 'checkout']
-                    },
-                    { 
-                        title: 'Repo Hosting', 
-                        description: 'Remote repositories.', 
-                        priority: 'medium',
-                        technologies: ['GitHub', 'GitLab', 'Pull Requests']
-                    }
-                ]
-            },
-            {
-                title: 'Package Managers',
-                icon: Layers,
-                topics: [
-                    { 
-                        title: 'Dependency Management', 
-                        description: 'Installing and updating 3rd party libraries.', 
-                        priority: 'medium',
-                        technologies: ['npm', 'yarn', 'pnpm']
-                    }
-                ]
-            },
-            {
-                title: 'Modern Frameworks',
-                icon: Cpu,
-                topics: [
-                    { 
-                        title: 'React Ecosystem', 
-                        description: 'Most popular library for building UIs.', 
-                        priority: 'high',
-                        technologies: ['Components', 'JSX', 'Hooks', 'Context API', 'State Management'],
-                        bookmarks: [
-                            { title: 'React Documentation', url: 'https://react.dev/' }
+                            { title: 'JavaScript.info (Best Resource)', url: 'https://javascript.info/' },
+                            { title: 'Namaste JavaScript (Video)', url: 'https://www.youtube.com/playlist?list=PLlasXeu85E9cQ32gLCvAvr9vNaUccPVNP' }
                         ]
                     },
                     { 
-                        title: 'Next.js', 
-                        description: 'React framework for production.', 
+                        title: 'Build Tools', 
+                        description: 'Bundlers and transpilers.', 
                         priority: 'medium',
-                        technologies: ['SSR', 'SSG', 'Routing', 'API Routes']
+                        technologies: ['Vite', 'Webpack', 'Babel', 'npm/yarn'],
+                        bookmarks: [
+                            { title: 'Vite in 100 Seconds', url: 'https://www.youtube.com/watch?v=KCrXgy8qtjM' }
+                        ]
                     },
                     { 
-                        title: 'Other Frameworks', 
-                        description: 'Alternatives to React.', 
-                        priority: 'low',
-                        technologies: ['Vue.js', 'Angular', 'Svelte']
-                    }
-                ]
-            },
-            {
-                title: 'CSS Frameworks',
-                icon: Zap,
-                topics: [
-                    { 
-                        title: 'Utility First', 
-                        description: 'Rapid UI development.', 
+                        title: 'React', 
+                        description: 'Component-based UI library.', 
                         priority: 'high',
-                        technologies: ['Tailwind CSS']
-                    },
-                    { 
-                        title: 'Component Libraries', 
-                        description: 'Pre-built components.', 
-                        priority: 'low',
-                        technologies: ['Material UI', 'Chakra UI', 'Shadcn/UI']
+                        technologies: ['Hooks', 'Context', 'State Management', 'JSX'],
+                        bookmarks: [
+                            { title: 'React Documentation (Official)', url: 'https://react.dev/' },
+                            { title: 'React Course - Beginner\'s Guide', url: 'https://www.youtube.com/watch?v=bMknfKXIFA8' }
+                        ]
                     }
                 ]
             }
         ]
     },
     'backend': {
-       /* ... keep backend as is for now, or add bookmarks if needed ... */
-       /* Re-inserting existing backend data to keep file valid */
         id: 'backend',
         title: 'Backend Developer',
-        description: 'Master server-side logic, databases, and APIs to power the web.',
+        description: 'Design robust APIs, manage databases, and ensure server scalability.',
         sections: [
             {
-                title: 'Internet Fundamentals',
-                icon: Globe,
+                title: 'Server Fundamentals',
+                icon: Server,
                 topics: [
                     { 
-                        title: 'How the Web Works', 
-                        description: 'Request/Response cycle.', 
+                        title: 'HTTP & Protocols', 
+                        description: 'Understanding data transmission.', 
                         priority: 'high',
-                        technologies: ['HTTP/HTTPS', 'DNS', 'Browsers', 'Hosting'],
+                        technologies: ['HTTP/1.1 vs 2', 'REST', 'GraphQL', 'gRPC'],
                         bookmarks: [
-                           { title: 'HTTP Overview', url: 'https://developer.mozilla.org/en-US/docs/Web/HTTP/Overview' }
+                            { title: 'HTTP: The Protocol Every Web Dev Must Know', url: 'https://code.tutsplus.com/tutorials/http-the-protocol-every-web-developer-must-know-part-1--net-31177' }
                         ]
                     },
                     { 
-                        title: 'Networking', 
-                        description: 'Data transmission protocols.', 
+                        title: 'OS & Terminal', 
+                        description: 'Linux command line mastery.', 
                         priority: 'medium',
-                        technologies: ['TCP/UDP', 'IP', 'Ports', 'Sockets']
-                    },
-                ]
-            },
-            {
-                title: 'OS Knowledge',
-                icon: Terminal,
-                topics: [
-                    { 
-                        title: 'Terminal / CLI', 
-                        description: 'Navigating and controlling the OS.', 
-                        priority: 'high',
-                        technologies: ['Bash/Zsh', 'Vim/Nano', 'Process Management', 'Permissions', 'SSH']
-                    },
-                    { 
-                        title: 'OS Concepts', 
-                        description: 'How operating systems function.', 
-                        priority: 'medium',
-                        technologies: ['Memory Management', 'Threads & Concurrency', 'I/O Management', 'POSIX']
-                    }
-                ]
-            },
-            {
-                title: 'Programming Language',
-                icon: Code2,
-                topics: [
-                    { 
-                        title: 'Primary Language', 
-                        description: 'Choose one strong backend language.', 
-                        priority: 'high',
-                        technologies: ['Go', 'Node.js (JavaScript/TypeScript)', 'Python', 'Java', 'C#', 'Rust']
+                        technologies: ['Bash/Zsh', 'SSH', 'Process Management', 'Permissions'],
+                        bookmarks: [
+                            { title: 'Linux Journey', url: 'https://linuxjourney.com/' },
+                            { title: 'Missing Semester (MIT)', url: 'https://missing.csail.mit.edu/' }
+                        ]
                     }
                 ]
             },
@@ -263,76 +209,375 @@ const ROADMAP_DATA: Record<string, RoadmapDefinition> = {
                 icon: Database,
                 topics: [
                     { 
-                        title: 'Relational Databases', 
-                        description: 'Structured data storage (SQL).', 
+                        title: 'Relational DBs', 
+                        description: 'Structured data storage.', 
                         priority: 'high',
-                        technologies: ['PostgreSQL', 'MySQL', 'Transactions', 'Normalization', 'Indexes']
+                        technologies: ['PostgreSQL', 'MySQL', 'Normalization', 'ACID'],
+                        bookmarks: [
+                            { title: 'PostgreSQL Tutorial', url: 'https://www.postgresqltutorial.com/' },
+                            { title: 'SQLZoo (Practice)', url: 'https://sqlzoo.net/' }
+                        ]
                     },
                     { 
-                        title: 'NoSQL Databases', 
-                        description: 'Flexible schema data storage.', 
+                        title: 'NoSQL & Caching', 
+                        description: 'High performance data stores.', 
                         priority: 'medium',
-                        technologies: ['MongoDB', 'Redis (Caching)', 'Cassandra', 'DynamoDB']
+                        technologies: ['MongoDB', 'Redis', 'ElasticSearch'],
+                        bookmarks: [
+                            { title: 'MongoDB Crash Course', url: 'https://www.youtube.com/watch?v=ofme2o29ngU' }
+                        ]
                     },
                     { 
-                        title: 'Database Design', 
-                        description: 'Structuring data efficiently.', 
-                        priority: 'high',
-                        technologies: ['Schema Design', 'ORMs (Prisma/Gorm)', 'ACID', 'N+1 Problem']
+                        title: 'ORMs', 
+                        description: 'Bridging code and data.', 
+                        priority: 'medium',
+                        technologies: ['Prisma', 'GORM', 'TypeORM'],
+                        bookmarks: [
+                             { title: 'Prisma 101', url: 'https://www.prisma.io/docs/getting-started' }
+                        ]
                     }
                 ]
             },
             {
-                title: 'APIs',
+                title: 'API Security',
+                icon: Lock,
+                topics: [
+                   { 
+                       title: 'Authentication', 
+                       description: 'Verifying user identity.', 
+                       priority: 'high',
+                       technologies: ['JWT', 'OAuth2', 'Session Auth'],
+                       bookmarks: [
+                           { title: 'JWT.io Introduction', url: 'https://jwt.io/introduction' },
+                           { title: 'OAuth 2.0 Simplified', url: 'https://www.oauth.com/' }
+                       ]
+                   },
+                   { 
+                       title: 'Authorization', 
+                       description: 'Access control.', 
+                       priority: 'high',
+                       technologies: ['RBAC', 'Scopes', 'Policies'],
+                        bookmarks: [
+                            { title: 'OWASP Security Cheat Sheet', url: 'https://cheatsheetseries.owasp.org/' }
+                        ]
+                   }
+                ]
+            }
+        ]
+    },
+    'fullstack': {
+        id: 'fullstack',
+        title: 'Full Stack Developer',
+        description: 'Master the entire stack from beautiful UIs to scalable backends.',
+        sections: [
+            {
+                title: 'Frontend Mastery',
+                icon: Layout,
+                topics: [
+                    { 
+                        title: 'React & Ecosystem', 
+                        priority: 'high', 
+                        description: 'Advanced UI patterns.', 
+                        technologies: ['Hooks', 'Patterns', 'TanStack Query'],
+                        bookmarks: [
+                            { title: 'React Patterns', url: 'https://reactpatterns.com/' },
+                            { title: 'TanStack Query Docs', url: 'https://tanstack.com/query/latest' }
+                        ]
+                    },
+                    { 
+                        title: 'CSS Frameworks', 
+                        priority: 'medium', 
+                        description: 'Rapid styling.', 
+                        technologies: ['Tailwind', 'Shadcn/UI'],
+                        bookmarks: [
+                            { title: 'Tailwind CSS Docs', url: 'https://tailwindcss.com/docs' }
+                        ]
+                    }
+                ]
+            },
+            {
+                title: 'Backend Integration',
                 icon: Server,
                 topics: [
                     { 
-                        title: 'REST Architecture', 
-                        description: 'Standard for web APIs.', 
-                        priority: 'high',
-                        technologies: ['Resources', 'HTTP Methods', 'Status Codes', 'JSON', 'Statelessness']
+                        title: 'API Design', 
+                        priority: 'high', 
+                        description: 'Connecting front and back.', 
+                        technologies: ['REST', 'tRPC'],
+                        bookmarks: [
+                             { title: 'RESTful API Design', url: 'https://restfulapi.net/' }
+                        ]
                     },
                     { 
-                        title: 'Authentication', 
-                        description: 'Securing your API.', 
-                        priority: 'high',
-                        technologies: ['JWT', 'OAuth2', 'Basic Auth', 'Cookies vs Tokens']
-                    },
-                    { 
-                        title: 'Other Styles', 
-                        description: 'Modern API alternatives.', 
-                        priority: 'medium',
-                        technologies: ['GraphQL', 'gRPC', 'WebSockets']
+                        title: 'Serverless', 
+                        priority: 'medium', 
+                        description: 'Modern deployment.', 
+                        technologies: ['Edge Functions', 'AWS Lambda'],
+                         bookmarks: [
+                             { title: 'Vercel Serverless Functions', url: 'https://vercel.com/docs/functions' }
+                         ]
                     }
                 ]
             },
             {
-                title: 'Web Security',
-                icon: Lock,
+                title: 'Deployment',
+                icon: Globe,
                 topics: [
                     { 
-                        title: 'Security Best Practices', 
-                        description: 'Protecting your application.', 
-                        priority: 'high',
-                        technologies: ['CORS', 'HTTPS/SSL', 'Rate Limiting', 'Hashing (Bcrypt/Argon2)']
+                        title: 'CI/CD', 
+                        priority: 'high', 
+                        description: 'Automated pipelines.', 
+                        technologies: ['GitHub Actions', 'Vercel'],
+                        bookmarks: [
+                            { title: 'GitHub Actions Documentation', url: 'https://docs.github.com/en/actions' }
+                        ]
                     },
                     { 
-                        title: 'Common Vulnerabilities', 
-                        description: 'OWASP Top 10.', 
-                        priority: 'high',
-                        technologies: ['SQL Injection', 'XSS', 'CSRF', 'DDOS']
+                        title: 'Docker', 
+                        priority: 'medium', 
+                        description: 'Containerization.', 
+                        technologies: ['Dockerfile', 'Compose'],
+                        bookmarks: [
+                            { title: 'Docker for Beginners', url: 'https://docker-curriculum.com/' }
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+    'ai-engineer': {
+        id: 'ai-engineer',
+        title: 'AI Engineer',
+        description: 'Build the future with LLMs, agents, and machine learning models.',
+        sections: [
+            {
+                title: 'Python Foundation',
+                icon: Terminal,
+                topics: [
+                    { 
+                        title: 'Python Core', 
+                        priority: 'high', 
+                        description: 'Language of AI.', 
+                        technologies: ['Python 3.11+', 'Virtual Envs'],
+                        bookmarks: [
+                            { title: 'Real Python', url: 'https://realpython.com/' },
+                            { title: 'Automate the Boring Stuff', url: 'https://automatetheboringstuff.com/' }
+                        ]
+                    },
+                    { 
+                        title: 'Data Handling', 
+                        priority: 'high', 
+                        description: 'NumPy and Pandas.', 
+                        technologies: ['DataFrames', 'Vectorization'],
+                        bookmarks: [
+                            { title: 'Pandas Documentation', url: 'https://pandas.pydata.org/docs/' }
+                        ]
                     }
                 ]
             },
             {
-                title: 'Caching',
+                title: 'LLMs & APIs',
+                icon: Zap,
+                topics: [
+                    { 
+                        title: 'OpenAI API', 
+                        priority: 'high', 
+                        description: 'Integrating GPT models.', 
+                        technologies: ['ChatCompletions', 'Embeddings'],
+                        bookmarks: [
+                            { title: 'OpenAI Cookbook', url: 'https://github.com/openai/openai-cookbook' }
+                        ]
+                    },
+                    { 
+                        title: 'Prompt Engineering', 
+                        priority: 'high', 
+                        description: 'Optimizing inputs.', 
+                        technologies: ['Chain-of-thought', 'ReAct'],
+                        bookmarks: [
+                             { title: 'Prompt Engineering Guide', url: 'https://www.promptingguide.ai/' }
+                        ]
+                    },
+                    { 
+                        title: 'LangChain', 
+                        priority: 'medium', 
+                        description: 'Orchestrating chains.', 
+                        technologies: ['Agents', 'Tools'],
+                        bookmarks: [
+                            { title: 'LangChain JS/TS Docs', url: 'https://js.langchain.com/docs/get_started/introduction' }
+                        ]
+                    }
+                ]
+            },
+            {
+                title: 'Vector Databases',
+                icon: Database,
+                topics: [
+                    { 
+                        title: 'RAG Architecture', 
+                        priority: 'high', 
+                        description: 'Retrieval Augmented Generation.', 
+                        technologies: ['Pinecone', 'ChromaDB'],
+                        bookmarks: [
+                            { title: 'What is RAG?', url: 'https://help.openai.com/en/articles/8868588-retrieval-augmented-generation-rag-and-semantic-search-for-gpts' }
+                        ]
+                    },
+                    { 
+                        title: 'Embeddings', 
+                        priority: 'high', 
+                        description: 'Semantic search.', 
+                        technologies: ['Vector Math', 'Similarity Search']
+                    }
+                ]
+            }
+        ]
+    },
+    'devops': {
+        id: 'devops',
+        title: 'DevOps Engineer',
+        description: 'Bridge the gap between code and operations with automation.',
+        sections: [
+            {
+                title: 'Infrastructure as Code',
+                icon: Server,
+                topics: [
+                    { 
+                        title: 'Linux', 
+                        priority: 'high', 
+                        description: 'Operating System fundamentals.', 
+                        technologies: ['Bash', 'Scripting'],
+                        bookmarks: [
+                            { title: 'Linux Command Line', url: 'https://linuxcommand.org/' }
+                        ]
+                    },
+                    { 
+                        title: 'Terraform', 
+                        priority: 'high', 
+                        description: 'Provisioning infrastructure.', 
+                        technologies: ['HCL', 'Modules', 'State'],
+                        bookmarks: [
+                            { title: 'Terraform Tutorials', url: 'https://developer.hashicorp.com/terraform/tutorials' }
+                        ]
+                    }
+                ]
+            },
+            {
+                title: 'Containers',
                 icon: Layers,
                 topics: [
                     { 
-                        title: 'Caching Strategies', 
-                        description: 'Speeding up responses.', 
-                        priority: 'medium',
-                        technologies: ['Client-side', 'Server-side', 'CDN', 'Redis']
+                        title: 'Docker', 
+                        priority: 'high', 
+                        description: 'Packaging apps.', 
+                        technologies: ['Images', 'Containers', 'Compose'],
+                        bookmarks: [
+                            { title: 'Play with Docker', url: 'https://labs.play-with-docker.com/' }
+                        ]
+                    },
+                    { 
+                        title: 'Kubernetes', 
+                        priority: 'high', 
+                        description: 'Orchestration.', 
+                        technologies: ['Pods', 'Services', 'Helm'],
+                        bookmarks: [
+                            { title: 'Kubernetes Basics', url: 'https://kubernetes.io/docs/tutorials/kubernetes-basics/' }
+                        ]
+                    }
+                ]
+            },
+            {
+                title: 'CI/CD Pipelines',
+                icon: Settings,
+                topics: [
+                    { 
+                        title: 'Automation', 
+                        priority: 'high', 
+                        description: 'Testing and deployment.', 
+                        technologies: ['GitHub Actions', 'GitLab CI', 'Jenkins']
+                    },
+                    { 
+                        title: 'Monitoring', 
+                        priority: 'medium', 
+                        description: 'Observability.', 
+                        technologies: ['Prometheus', 'Grafana', 'ELK'],
+                         bookmarks: [
+                             { title: 'Prometheus Overview', url: 'https://prometheus.io/docs/introduction/overview/' }
+                         ]
+                    }
+                ]
+            }
+        ]
+    },
+    'data-science': {
+        id: 'data-science',
+        title: 'Data Scientist',
+        description: 'Turn raw data into actionable insights using statistics and ML.',
+        sections: [
+            {
+                title: 'Mathematics',
+                icon: Cpu,
+                topics: [
+                    { 
+                        title: 'Statistics', 
+                        priority: 'high', 
+                        description: 'Foundational math.', 
+                        technologies: ['Probability', 'Distribution', 'Hypothesis Testing'],
+                        bookmarks: [
+                             { title: 'Khan Academy: Statistics', url: 'https://www.khanacademy.org/math/statistics-probability' }
+                        ]
+                    },
+                    { 
+                        title: 'Linear Algebra', 
+                        priority: 'medium', 
+                        description: 'Matrix operations.', 
+                        technologies: ['Vectors', 'Matrices'],
+                         bookmarks: [
+                             { title: '3Blue1Brown Linear Algebra', url: 'https://www.youtube.com/playlist?list=PLZHQObOWTQDPD3MizzM2xVFitgF8hE_ab' }
+                         ]
+                    }
+                ]
+            },
+            {
+                title: 'Analysis Tools',
+                icon: Database,
+                topics: [
+                    { 
+                        title: 'Python Stack', 
+                        priority: 'high', 
+                        description: 'Data manipulation.', 
+                        technologies: ['Pandas', 'NumPy', 'Matplotlib', 'Seaborn'],
+                        bookmarks: [
+                            { title: 'Kaggle Learn: Python', url: 'https://www.kaggle.com/learn/python' }
+                        ]
+                    },
+                    { 
+                        title: 'SQL', 
+                        priority: 'high', 
+                        description: 'Querying data.', 
+                        technologies: ['Joins', 'Aggregations', 'Window Functions'],
+                        bookmarks: [
+                             { title: 'Mode Analytics SQL Tutorial', url: 'https://mode.com/sql-tutorial/' }
+                        ]
+                    }
+                ]
+            },
+            {
+                title: 'Machine Learning',
+                icon: Brain,
+                topics: [
+                    { 
+                        title: 'Supervised Learning', 
+                        priority: 'high', 
+                        description: 'Labeled data.', 
+                        technologies: ['Regression', 'Classification', 'Scikit-Learn'],
+                        bookmarks: [
+                            { title: 'Andrew Ng ML Course', url: 'https://www.coursera.org/learn/machine-learning' }
+                        ]
+                    },
+                    { 
+                        title: 'Unsupervised Learning', 
+                        priority: 'medium', 
+                        description: 'Clustering.', 
+                        technologies: ['K-Means', 'PCA']
                     }
                 ]
             }
@@ -357,6 +602,39 @@ export const RoadmapDetails = () => {
     const [dynamicRoadmap, setDynamicRoadmap] = useState<RoadmapDefinition | null>(null);
     const [loading, setLoading] = useState(false);
     
+    // Scroll Progress Logic
+    const timelineRef = useRef<HTMLDivElement>(null);
+    const [scrollProgress, setScrollProgress] = useState(0);
+
+    useEffect(() => {
+        const handleScroll = () => {
+            if (!timelineRef.current) return;
+            
+            const rect = timelineRef.current.getBoundingClientRect();
+            const windowHeight = window.innerHeight;
+            const elementTop = rect.top;
+            const elementHeight = rect.height;
+            
+            // Start tracking when the top of the element hits the middle of the screen
+            const startOffset = windowHeight / 2;
+            const endOffset = windowHeight / 2;
+            
+            // Calculate how much of the element has passed the center of the screen
+            let percentage = (windowHeight / 2 - elementTop) / elementHeight;
+            
+            // Clamp between 0 and 1
+            percentage = Math.max(0, Math.min(1, percentage));
+            
+            setScrollProgress(percentage * 100);
+        };
+
+        window.addEventListener('scroll', handleScroll);
+        // Trigger once on mount
+        handleScroll();
+        
+        return () => window.removeEventListener('scroll', handleScroll);
+    }, []);
+
     // Check if it's a known static role or a dynamic ID
     const isStatic = roleId && ROADMAP_DATA[roleId];
     
@@ -366,11 +644,6 @@ export const RoadmapDetails = () => {
             roadmapService.getRoadmapById(roleId)
                 .then(res => {
                     if (res.success && res.data && res.data.content) {
-                         // Transform the response content if needed, or use as is if it matches RoadmapDefinition
-                         // The backend stores the JSON string in 'content', which might be parsed already by service wrapper?
-                         // Service returns { found, data: { ... content: {...} } }
-                         // Actually the backend endpoint /roadmap/view returns { success: true, data: { ... content: {...} } }
-                         // Let's assume content is the RoadmapDefinition structure
                          setDynamicRoadmap(res.data.content as RoadmapDefinition);
                     }
                 })
@@ -387,152 +660,142 @@ export const RoadmapDetails = () => {
     if (!roadmap) return <div className="text-white text-center py-20">Roadmap not found</div>;
 
     return (
-        <div className="min-h-screen bg-slate-950 text-white font-sans selection:bg-brand-500/30">
+        <div className="min-h-screen bg-slate-950 text-slate-200 font-sans selection:bg-brand-500/30">
             {/* Header */}
-            <div className="relative border-b border-white/10 bg-slate-900/50 backdrop-blur-xl sticky top-[64px] z-40">
-                 <div className="max-w-5xl mx-auto px-6 py-6 flex items-center justify-between">
-                     <div>
+            <div className="border-b border-slate-900 bg-slate-950/95 backdrop-blur z-40 sticky top-16">
+                 <div className="max-w-5xl mx-auto px-6 py-4 flex items-center justify-between gap-4">
+                     <div className="flex items-center gap-4">
                         <button 
-                            onClick={() => navigate('/roadmaps')}
-                            className="flex items-center gap-2 text-slate-400 hover:text-white mb-4 text-sm font-medium transition-colors"
+                            onClick={() => navigate('/roadmap')}
+                            className="w-8 h-8 flex items-center justify-center rounded-md bg-slate-900 border border-slate-800 text-slate-400 hover:text-brand-400 hover:border-brand-500/30 transition-all shrink-0"
                         >
                             <ArrowLeft className="w-4 h-4" />
-                            Back to All Roadmaps
                         </button>
-                        <h1 className="text-3xl font-black tracking-tight">{roadmap.title}</h1>
-                        <p className="text-slate-400 mt-1">{roadmap.description}</p>
-                     </div>
-                     <div className="hidden md:block text-right">
-                         <div className="px-4 py-2 bg-brand-500/10 border border-brand-500/20 rounded-full text-brand-400 text-xs font-bold uppercase tracking-wider inline-block">
-                             Updated Dec 2025
-                         </div>
-                         <div className="text-xs text-slate-500 mt-2">
-                             Full Curriculum
-                         </div>
+                        <div>
+                            <h1 className="text-xl md:text-2xl font-bold tracking-tight text-slate-100">{roadmap.title}</h1>
+                        </div>
                      </div>
                  </div>
             </div>
 
             {/* Timeline Content */}
-            <div className="max-w-4xl mx-auto px-6 py-12 relative">
+            <div className="max-w-5xl mx-auto px-6 py-12">
                 
-                {/* Central Line */}
-                <div className="absolute left-6 md:left-1/2 top-12 bottom-12 w-0.5 bg-slate-800 md:-translate-x-1/2"></div>
+                {/* Timeline Wrapper */}
+                <div ref={timelineRef} className="relative pb-12">
+                    {/* Background Line */}
+                    <div className="absolute left-6 md:left-1/2 top-0 bottom-0 w-[2px] bg-slate-800/50 md:-translate-x-1/2 rounded-full"></div>
+                    
+                    {/* Magic Cursor (Progress Line) */}
+                    <div 
+                        className="absolute left-6 md:left-1/2 top-0 w-[2px] bg-gradient-to-b from-brand-500 via-brand-400 to-transparent md:-translate-x-1/2 rounded-full transition-[height] duration-100 ease-out will-change-transform shadow-[0_0_15px_rgba(99,102,241,0.5)]"
+                        style={{ height: `${scrollProgress}%` }}
+                    >
+                        {/* Glowing Tip */}
+                        <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-4 h-4 bg-brand-400 rounded-full blur-[6px]"></div>
+                        <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-2 h-2 bg-brand-100 rounded-full"></div>
+                    </div>
 
-                <div className="space-y-16">
-                    {roadmap.sections.map((section, idx) => {
-                        const isRight = idx % 2 === 0;
+                    <div className="space-y-20 pt-10">
+                        {roadmap.sections.map((section, idx) => {
+                            const isRight = idx % 2 === 0;
 
-                         return (
-                             <div key={idx} className={`relative flex flex-col md:flex-row gap-8 ${isRight ? 'md:flex-row' : 'md:flex-row-reverse'}`}>
-                                 
-                                 {/* Timeline Node (Icon) */}
-                                 <div className="absolute left-6 md:left-1/2 -translate-x-1/2 w-12 h-12 rounded-2xl bg-slate-900 border-4 border-slate-950 flex items-center justify-center z-10 shadow-xl" id={`section-${idx}`}>
-                                     <div className="w-full h-full bg-slate-800 rounded-xl flex items-center justify-center border border-slate-700 shadow-inner">
-                                        {section.icon ? <section.icon className="w-5 h-5 text-brand-400" /> : <div className="w-2 h-2 bg-brand-500 rounded-full" />}
+                             return (
+                                 <ScrollReveal key={idx} className={`relative flex flex-col md:flex-row gap-16 ${isRight ? 'md:flex-row' : 'md:flex-row-reverse'}`}>
+                                     
+                                     {/* Center Node Area */}
+                                     {/* We use strict absolute positioning to align with the central line */}
+                                     <div className="absolute left-6 md:left-1/2 top-0 -translate-x-1/2 z-20 flex flex-col items-center">
+                                         <div className={`w-4 h-4 rounded-full border-[3px] transition-colors duration-500 ${
+                                             // Highlight node if passed
+                                             (idx + 1) / roadmap.sections.length * 100 <= scrollProgress + 10 
+                                                ? 'bg-slate-950 border-brand-400 shadow-[0_0_10px_rgba(99,102,241,0.5)]' 
+                                                : 'bg-slate-950 border-slate-700'
+                                         }`}></div>
                                      </div>
-                                 </div>
 
-                                 {/* Content Card Side */}
-                                 <div className={`flex-1 pl-16 md:pl-0 ${isRight ? 'md:pr-16 md:text-right' : 'md:pl-16 md:text-left'}`}>
-                                      <h2 className="text-2xl font-bold mb-6 text-white flex items-center gap-3 md:inline-flex">
-                                          {isRight ? (
-                                              <>
-                                                {section.title}
-                                                <span className="text-slate-600 text-lg font-light hidden md:inline">0{idx + 1}</span>
-                                              </>
-                                          ) : (
-                                              <>
-                                                <span className="text-slate-600 text-lg font-light hidden md:inline">0{idx + 1}</span>
-                                                {section.title}
-                                              </>
-                                          )}
-                                      </h2>
+                                     {/* Content Side */}
+                                     <div className={`flex-1 pl-16 md:pl-0 ${isRight ? 'md:pr-16 md:text-right' : 'md:pl-16 md:text-left'} z-10`}>
+                                          <div className={`flex flex-col gap-2 mb-6 ${isRight ? 'md:items-end' : 'md:items-start'}`}>
+                                              <span className="text-brand-500 font-mono text-xs font-bold tracking-widest uppercase opacity-80">
+                                                  Phase 0{idx + 1}
+                                              </span>
+                                              <h2 className="text-3xl font-bold text-white">{section.title}</h2>
+                                          </div>
 
-                                      <div className={`space-y-4 ${isRight ? 'md:items-end' : 'md:items-start'} flex flex-col`}>
-                                          {section.topics.map((topic, tIdx) => (
-                                              <div 
-                                                key={tIdx} 
-                                                className={`group relative p-5 rounded-xl border bg-slate-900/50 hover:bg-slate-800/80 transition-all cursor-pointer w-full hover:-translate-y-1 duration-300 shadow-lg ${
-                                                    topic.priority === 'high' ? 'border-l-4 border-l-brand-500 border-y-slate-800 border-r-slate-800 shadow-brand-500/5' :
-                                                    topic.priority === 'medium' ? 'border-l-4 border-l-yellow-500/50 border-y-slate-800 border-r-slate-800' :
-                                                    'border-l-4 border-l-slate-700 border-y-slate-800 border-r-slate-800'
-                                                }`}
-                                              >
-                                                  <div className={`flex flex-col gap-3 ${isRight ? 'md:items-end' : 'md:items-start'}`}>
-                                                      
-                                                      {/* Top Row: Title + Priority */}
-                                                      <div className={`flex items-center gap-3 w-full ${isRight ? 'md:flex-row-reverse justify-between' : 'flex-row justify-between'}`}>
-                                                          <h3 className="text-lg font-bold text-white group-hover:text-brand-300 transition-colors">{topic.title}</h3>
+                                          <div className={`grid gap-6 ${isRight ? 'md:justify-items-end' : 'md:justify-items-start'}`}>
+                                              {section.topics.map((topic, tIdx) => (
+                                                  <div 
+                                                    key={tIdx} 
+                                                    className={`group relative w-full md:w-[90%] bg-slate-900/40 hover:bg-slate-900/80 border border-slate-800/80 hover:border-brand-500/30 rounded-xl p-6 transition-all duration-300 hover:shadow-2xl hover:shadow-brand-500/10 ${
+                                                        isRight ? 'border-r-2 border-r-slate-800 hover:border-r-brand-500' : 'border-l-2 border-l-slate-800 hover:border-l-brand-500'
+                                                    }`}
+                                                  >
+                                                      {/* Card Header */}
+                                                      <div className={`flex justify-between items-start gap-4 mb-3 ${isRight ? 'flex-row-reverse' : ''}`}>
+                                                          <h3 className="text-lg font-bold text-slate-100 group-hover:text-brand-400 transition-colors">{topic.title}</h3>
                                                           <PriorityBadge priority={topic.priority} />
                                                       </div>
                                                       
-                                                      <p className="text-sm text-slate-400 font-medium leading-relaxed">{topic.description}</p>
+                                                      {/* Description */}
+                                                      <p className="text-sm text-slate-400 leading-relaxed mb-5">{topic.description}</p>
                                                       
-                                                      {/* Tech Stack Chips */}
-                                                      {topic.technologies && topic.technologies.length > 0 && (
-                                                          <div className={`flex flex-wrap gap-2 mt-2 ${isRight ? 'md:justify-end' : 'md:justify-start'}`}>
-                                                              {topic.technologies.map(tech => (
-                                                                  <span key={tech} className="px-2 py-1 rounded bg-slate-800 border border-slate-700 text-slate-300 text-[11px] font-mono hover:text-white hover:border-slate-500 transition-colors">
-                                                                    {tech}
-                                                                  </span>
-                                                              ))}
-                                                          </div>
-                                                      )}
-                                                      
-                                                      {/* Bookmarks Section */}
-                                                      {topic.bookmarks && topic.bookmarks.length > 0 && (
-                                                          <div className={`mt-4 pt-4 border-t border-slate-800/50 w-full ${isRight ? 'md:text-right' : 'md:text-left'}`}>
-                                                              <h4 className="text-[10px] uppercase font-bold text-slate-500 mb-2 tracking-wider flex items-center gap-1.5 opacity-70">
-                                                                  <div className={`bg-brand-500/20 p-1 rounded-full ${isRight ? 'order-last' : ''}`}>
-                                                                    <Globe className="w-3 h-3 text-brand-400" />
-                                                                  </div>
-                                                                  Top Resources
-                                                              </h4>
-                                                              <div className={`flex flex-col gap-1.5 ${isRight ? 'md:items-end' : 'md:items-start'}`}>
-                                                                {topic.bookmarks.map((b, i) => (
-                                                                    <a 
+                                                      {/* Footer with Tech & Resources */}
+                                                      <div className={`flex flex-col gap-4 border-t border-slate-800/50 pt-4 ${isRight ? 'md:items-end' : ''}`}>
+                                                          {/* Tech Stack */}
+                                                          {topic.technologies && topic.technologies.length > 0 && (
+                                                              <div className={`flex flex-wrap gap-2 ${isRight ? 'justify-end' : 'justify-start'}`}>
+                                                                  {topic.technologies.map(tech => (
+                                                                      <span key={tech} className="text-[10px] font-bold text-slate-500 uppercase tracking-wider bg-slate-950 px-2 py-1 rounded border border-slate-800">
+                                                                          {tech}
+                                                                      </span>
+                                                                  ))}
+                                                              </div>
+                                                          )}
+                                                          
+                                                          {/* Links - Compact */}
+                                                          {topic.bookmarks && topic.bookmarks.length > 0 && (
+                                                              <div className={`flex flex-wrap gap-3 ${isRight ? 'justify-end' : 'justify-start'}`}>
+                                                                  {topic.bookmarks.map((b, i) => (
+                                                                     <a 
                                                                         key={i} 
                                                                         href={b.url} 
                                                                         target="_blank" 
                                                                         rel="noreferrer" 
-                                                                        className="text-xs text-brand-300 hover:text-brand-200 hover:underline flex items-center gap-2 group/link"
-                                                                    >
-                                                                        {b.title}
-                                                                        <ArrowLeft className="w-3 h-3 rotate-180 opacity-0 group-hover/link:opacity-100 transition-opacity -ml-1 group-hover/link:translate-x-1" />
-                                                                    </a>
-                                                                ))}
+                                                                        className="flex items-center gap-1.5 text-xs font-medium text-slate-500 hover:text-brand-400 transition-colors"
+                                                                     >
+                                                                         <Globe className="w-3 h-3" />
+                                                                         {b.title}
+                                                                     </a> 
+                                                                  ))}
                                                               </div>
-                                                          </div>
-                                                      )}
-
+                                                          )}
+                                                      </div>
                                                   </div>
-                                              </div>
-                                          ))}
-                                      </div>
-                                 </div>
+                                              ))}
+                                          </div>
+                                     </div>
 
-                                 {/* Empty Space for Balance */}
-                                 <div className="flex-1 hidden md:block"></div>
-                             </div>
-                         );
-                    })}
+                                     {/* Empty Space for Balance */}
+                                     <div className="flex-1 hidden md:block"></div>
+                                 </ScrollReveal>
+                             );
+                        })}
+                    </div>
                 </div>
 
                  {/* Bottom CTA */}
-                <div className="mt-24 text-center relative z-10 pb-20">
-                    <div className="inline-block p-1 rounded-2xl bg-gradient-to-r from-brand-500 to-purple-500">
-                        <div className="bg-slate-950 rounded-xl p-8 max-w-xl">
-                            <h3 className="text-2xl font-bold text-white mb-2">Ready to master {roadmap.title}?</h3>
-                            <p className="text-slate-400 mb-6">Create a personalized learning plan with AI, track your progress, and get help when you stick.</p>
-                            <button 
-                                onClick={() => navigate('/roadmap-generator', { state: { role: roadmap.id } })}
-                                className="px-8 py-3 bg-brand-600 hover:bg-brand-500 text-white font-bold rounded-lg transition-colors flex items-center justify-center gap-2 mx-auto"
-                            >
-                                <Zap className="w-4 h-4" />
-                                Generate My Path
-                            </button>
-                        </div>
+                <div className="mt-20 text-center pb-20">
+                    <div className="max-w-xl mx-auto">
+                        <h3 className="text-xl font-bold text-white mb-2">Build Your Personal Plan</h3>
+                        <p className="text-slate-400 mb-6 text-sm">Need a schedule tailored to your pace?</p>
+                        <button 
+                            onClick={() => navigate('/roadmap-generator', { state: { role: roadmap.id } })}
+                            className="px-6 py-2.5 bg-brand-600 hover:bg-brand-500 text-white font-bold rounded-lg hover:scale-105 transition-all flex items-center justify-center gap-2 mx-auto text-sm shadow-lg shadow-brand-500/20"
+                        >
+                            <Zap className="w-4 h-4" />
+                            Generate Custom Roadmap
+                        </button>
                     </div>
                 </div>
             </div>
