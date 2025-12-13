@@ -138,36 +138,82 @@ export const RoadmapGenerator = () => {
         </div>
     );
 
-    const renderRefine = () => (
-        <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500 max-w-2xl mx-auto w-full">
-            <div className="text-center">
-               <h2 className="text-3xl md:text-4xl font-black text-white mb-4">Fine Tune Your Path</h2>
-               <p className="text-slate-400 text-lg">Any specific interests, tools, or time constraints? (Optional)</p>
-           </div>
-           
-           <div className="bg-slate-900/50 border border-slate-800 rounded-2xl p-2 relative group focus-within:border-brand-500/50 focus-within:ring-1 focus-within:ring-brand-500/50 transition-all">
-               <textarea 
-                   className="w-full bg-transparent p-4 text-white placeholder:text-slate-600 focus:outline-none min-h-[150px] resize-none"
-                   placeholder="e.g., I want to focus on clean code, I have 2 hours a day, I prefer Python over Java, etc."
-                   value={selections.other}
-                   onChange={(e) => setSelections({...selections, other: e.target.value})}
-               />
-               <div className="absolute bottom-4 right-4 text-xs text-slate-600 pointer-events-none">
-                   AI-Powered Optimization
+    const renderRefine = () => {
+        const QUICK_TAGS = [
+            "🕒 1 hour/day", "📅 Weekends only", "🐍 Python preferred", 
+            "🎨 Visual Learner", "💼 Career switch", "🚀 Fast paced",
+            "⚛️ React focus", "🏗️ Backend heavy", "📱 Mobile interested"
+        ];
+
+        const addTag = (tag: string) => {
+            const rawTag = tag.substring(2).trim(); // Remove emoji for cleaner text if needed, or keep it. Let's keep full for now or strip.
+            // Actually, keeping the emoji might be cute, but let's strip it for the prompt context to be safer for AI? 
+            // Nah, AI understands emojis. Let's keep it simple.
+            
+            if (!selections.other.includes(tag)) {
+                setSelections(prev => ({
+                    ...prev,
+                    other: prev.other ? `${prev.other}, ${tag}` : tag
+                }));
+            }
+        };
+
+        return (
+            <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500 max-w-2xl mx-auto w-full">
+               <div className="text-center">
+                   <div className="inline-flex w-12 h-12 bg-indigo-500/20 rounded-full items-center justify-center mb-4 ring-1 ring-indigo-500/40 shadow-lg shadow-indigo-500/20">
+                       <Sparkles className="w-6 h-6 text-indigo-400" />
+                   </div>
+                   <h2 className="text-3xl md:text-4xl font-black text-white mb-2">Personalize Your AI Path</h2>
+                   <p className="text-slate-400 text-lg">Tell us a bit more about your preferences, or pick some quick priorities.</p>
+               </div>
+               
+               <div className="bg-slate-900/60 backdrop-blur-xl border border-slate-700/50 rounded-2xl overflow-hidden shadow-2xl shadow-indigo-500/10 ring-1 ring-white/5 focus-within:ring-brand-500/50 focus-within:border-brand-500/50 transition-all group">
+                   
+                   {/* Quick Tags Header */}
+                   <div className="bg-slate-950/30 px-4 py-3 border-b border-white/5 flex gap-2 overflow-x-auto no-scrollbar">
+                        {QUICK_TAGS.map(tag => (
+                            <button 
+                                key={tag}
+                                onClick={() => addTag(tag)}
+                                className="whitespace-nowrap px-3 py-1.5 rounded-lg bg-slate-800/50 border border-slate-700 text-slate-300 text-xs font-medium hover:bg-brand-500/20 hover:text-white hover:border-brand-500/30 transition-all flex items-center gap-1.5 active:scale-95"
+                            >
+                                {tag}
+                                <span className="opacity-50 text-indigo-400">+</span>
+                            </button>
+                        ))}
+                   </div>
+
+                   <textarea 
+                       className="w-full bg-transparent p-6 text-white text-lg placeholder:text-slate-600 focus:outline-none min-h-[160px] resize-none leading-relaxed selection:bg-brand-500/30"
+                       placeholder="e.g. I want to build a portfolio website, I learn best by doing projects, I have a background in design..."
+                       value={selections.other}
+                       onChange={(e) => setSelections({...selections, other: e.target.value})}
+                       autoFocus
+                   />
+                   
+                   <div className="px-4 py-3 bg-slate-950/30 border-t border-white/5 flex justify-between items-center text-xs text-slate-500 group-focus-within:text-brand-400/80 transition-colors">
+                       <span className="flex items-center gap-2">
+                           <Brain className="w-3 h-3" />
+                           AI Optimization Active
+                       </span>
+                       <span className="font-mono">{selections.other.length} chars</span>
+                   </div>
+               </div>
+
+               <div className="flex gap-4 justify-center pt-4">
+                   <button onClick={() => setStep('experience')} className="px-6 py-3 text-slate-400 hover:text-white transition-colors text-sm font-medium hover:bg-white/5 rounded-lg">Back</button>
+                   <button 
+                      onClick={() => setStep('goal')}
+                      className="px-8 py-3 bg-gradient-to-r from-brand-600 to-indigo-600 hover:from-brand-500 hover:to-indigo-500 text-white font-bold rounded-xl shadow-lg shadow-brand-500/25 transition-all hover:scale-105 flex items-center gap-2 border border-brand-400/20"
+                   >
+                       Continue
+                       <ArrowRight className="w-4 h-4" />
+                   </button>
                </div>
            </div>
-
-           <div className="flex gap-4 justify-center">
-               <button onClick={() => setStep('experience')} className="px-6 py-3 text-slate-400 hover:text-white transition-colors">Back</button>
-               <button 
-                  onClick={() => setStep('goal')}
-                  className="px-8 py-3 bg-brand-600 hover:bg-brand-500 text-white font-bold rounded-xl shadow-lg shadow-brand-500/20 transition-all hover:scale-105"
-               >
-                   Continue
-               </button>
-           </div>
-       </div>
-    );
+        );
+    };
 
     const renderGoal = () => (
          <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">

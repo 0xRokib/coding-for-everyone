@@ -1,122 +1,237 @@
-import { ArrowRight, Brain, CheckCircle2, Database, Globe, Layout, Lock, Map as MapIcon, Play, Rocket, Server, Terminal, Trophy, Zap } from 'lucide-react';
+import { ArrowRight, Brain, CheckCircle2, Database, Globe, Layout, Lock, Play, Server, Sparkles, Terminal, Trophy, Zap } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { RoadmapData, roadmapService } from '../../services/roadmap.service';
 
 const PUBLIC_ROADMAPS = [
-    { id: 'frontend', title: 'Frontend Developer', icon: Layout, desc: 'Master HTML, CSS, React & Modern UI', color: 'text-brand-400', border: 'hover:border-brand-500/50', bg: 'hover:bg-brand-500/5' },
-    { id: 'backend', title: 'Backend Developer', icon: Server, desc: 'Build robust APIs with Go, Python or Node', color: 'text-purple-400', border: 'hover:border-purple-500/50', bg: 'hover:bg-purple-500/5' },
-    { id: 'fullstack', title: 'Full Stack', icon: Globe, desc: 'The complete package. Build entire apps.', color: 'text-emerald-400', border: 'hover:border-emerald-500/50', bg: 'hover:bg-emerald-500/5' },
-    { id: 'ai-engineer', title: 'AI Engineer', icon: Brain, desc: 'Train models, build LLM apps & agents', color: 'text-rose-400', border: 'hover:border-rose-500/50', bg: 'hover:bg-rose-500/5' },
-    { id: 'devops', title: 'DevOps', icon: Terminal, desc: 'CI/CD, Docker, Kubernetes & Cloud', color: 'text-orange-400', border: 'hover:border-orange-500/50', bg: 'hover:bg-orange-500/5' },
-    { id: 'data-science', title: 'Data Scientist', icon: Database, desc: 'Analyze data, ML algorithms & stats', color: 'text-blue-400', border: 'hover:border-blue-500/50', bg: 'hover:bg-blue-500/5' },
+    { 
+        id: 'frontend', 
+        title: 'Frontend Developer', 
+        icon: Layout, 
+        desc: 'Master HTML, CSS, React & Modern UI to build stunning web interfaces.', 
+        color: 'text-brand-400', 
+        gradient: 'from-brand-500/20 to-brand-600/5',
+        border: 'group-hover:border-brand-500/50', 
+        tags: ['Popular', 'Career Path'],
+        level: 'Beginner Friendly',
+        duration: '6 Months'
+    },
+    { 
+        id: 'backend', 
+        title: 'Backend Developer', 
+        icon: Server, 
+        desc: 'Build robust APIs, handle databases, and architect scalable server systems.', 
+        color: 'text-purple-400', 
+        gradient: 'from-purple-500/20 to-purple-600/5',
+        border: 'group-hover:border-purple-500/50',
+        tags: ['High Demand'],
+        level: 'Intermediate',
+        duration: '8 Months'
+    },
+    { 
+        id: 'fullstack', 
+        title: 'Full Stack', 
+        icon: Globe, 
+        desc: 'The complete package. Build entire web applications from front to back.', 
+        color: 'text-emerald-400', 
+        gradient: 'from-emerald-500/20 to-emerald-600/5',
+        border: 'group-hover:border-emerald-500/50',
+        tags: ['Best Value', 'Comprehensive'],
+        level: 'Advanced',
+        duration: '12 Months'
+    },
+    { 
+        id: 'ai-engineer', 
+        title: 'AI Engineer', 
+        icon: Brain, 
+        desc: 'Train models, build LLM interfaces, and create the next generation of AI agents.', 
+        color: 'text-rose-400', 
+        gradient: 'from-rose-500/20 to-rose-600/5',
+        border: 'group-hover:border-rose-500/50',
+        tags: ['Trending', 'Future Tech'],
+        level: 'Advanced',
+        duration: '10 Months'
+    },
+    { 
+        id: 'devops', 
+        title: 'DevOps & Cloud', 
+        icon: Terminal, 
+        desc: 'Master CI/CD, Docker, Kubernetes, and cloud infrastructure on AWS/GCP.', 
+        color: 'text-orange-400', 
+        gradient: 'from-orange-500/20 to-orange-600/5',
+        border: 'group-hover:border-orange-500/50',
+        tags: ['Infrastructure'],
+        level: 'Intermediate',
+        duration: '6 Months'
+    },
+    { 
+        id: 'data-science', 
+        title: 'Data Scientist', 
+        icon: Database, 
+        desc: 'Analyze complex data, build predictive models, and drive decision making.', 
+        color: 'text-blue-400', 
+        gradient: 'from-blue-500/20 to-blue-600/5',
+        border: 'group-hover:border-blue-500/50',
+        tags: ['Analytics'],
+        level: 'Intermediate',
+        duration: '8 Months'
+    },
 ];
 
 export const Roadmap = () => {
-  const { token, user } = useAuth();
-  const navigate = useNavigate();
-  const [data, setData] = useState<RoadmapData | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    if (token) {
-        roadmapService.getRoadmap(token)
-            .then(setData)
-            .catch(console.error)
-            .finally(() => setIsLoading(false));
-    } else {
-        setIsLoading(false);
-    }
-  }, [token]);
-
-  const handleStartLesson = (courseId: number) => {
-      navigate(`/course/${courseId}`);
-  };
-
-  const handleMarkComplete = async (index: number) => {
-     if (!data?.data || !token) return;
-     // Optimistic update
-     const newData = { ...data };
-     if (newData.data) {
-         newData.data.current_index = index + 1;
-         setData(newData);
-         await roadmapService.updateProgress(token, newData.data.plan_id, index + 1);
-     }
-  };
-
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen bg-slate-950">
-          <div className="w-10 h-10 border-4 border-brand-500 border-t-transparent rounded-full animate-spin"></div>
-      </div>
-    );
-  }
-
-  // --- PUBLIC CATALOG VIEW (Like roadmap.sh) ---
-  if (!user || !data?.data) {
-       return (
-          <div className="flex-1 min-h-screen bg-slate-950 relative overflow-hidden flex flex-col items-center py-20 px-4">
-               {/* Ambient Background */}
-               <div className="absolute inset-0 bg-[linear-gradient(to_right,#1e293b_1px,transparent_1px),linear-gradient(to_bottom,#1e293b_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_50%,#000_70%,transparent_100%)] opacity-20 pointer-events-none" />
-               <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-brand-500/10 rounded-full blur-[100px] animate-pulse pointer-events-none"></div>
-
-              <div className="relative z-10 max-w-5xl w-full text-center">
-                   <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-brand-500/10 border border-brand-500/20 text-brand-400 text-sm font-bold mb-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
-                       <MapIcon className="w-4 h-4" />
-                       Developer Roadmaps
-                   </div>
-                   
-                   <h1 className="text-4xl md:text-6xl font-black text-white mb-6 tracking-tight animate-in fade-in slide-in-from-bottom-5 duration-700 delay-100">
-                       Find Your Path in Tech
-                   </h1>
-                   <p className="text-slate-400 text-lg md:text-xl mb-16 max-w-2xl mx-auto leading-relaxed animate-in fade-in slide-in-from-bottom-6 duration-700 delay-200">
-                       Step by step guides and paths to learn different tools or technologies. {user ? "Generate your custom path below." : "Sign in to track your progress."}
-                   </p>
-
-                   {/* Roadmap Grid */}
-                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 animate-in fade-in slide-in-from-bottom-8 duration-1000 delay-300">
-                       {PUBLIC_ROADMAPS.map((map) => (
-                           <button 
-                                key={map.id}
-                                onClick={() => navigate(`/roadmap/view/${map.id}`)}
-                                className={`group flex flex-col items-start p-6 rounded-2xl bg-slate-900/40 border border-slate-800 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl ${map.border} ${map.bg}`}
-                           >
-                               <div className="flex items-center gap-4 mb-4 w-full">
-                                   <div className={`p-3 rounded-xl bg-slate-900 border border-slate-800 group-hover:scale-110 transition-transform duration-300 ${map.color}`}>
-                                       <map.icon className="w-6 h-6" />
-                                   </div>
-                                   <div className={`ml-auto opacity-0 group-hover:opacity-100 transition-opacity -translate-x-2 group-hover:translate-x-0 duration-300 ${map.color}`}>
-                                       <ArrowRight className="w-5 h-5" />
-                                   </div>
-                               </div>
-                               <h3 className="text-xl font-bold text-white mb-2 group-hover:text-white transition-colors">{map.title}</h3>
-                               <p className="text-sm text-slate-400 text-left line-clamp-2">{map.desc}</p>
-                           </button>
-                       ))}
-                   </div>
-                   
-                   <div className="mt-20 p-8 rounded-3xl bg-gradient-to-r from-slate-900 to-slate-800 border border-slate-700 relative overflow-hidden md:flex items-center justify-between gap-8 text-left animate-in fade-in slide-in-from-bottom-10 duration-1000 delay-500">
-                       <div className="relative z-10">
-                           <h3 className="text-2xl font-bold text-white mb-2">Create a Custom Roadmap</h3>
-                           <p className="text-slate-400 max-w-md">Don't see what you're looking for? Let our AI architect a personalized learning path just for you.</p>
-                       </div>
-                       <button 
-                         onClick={() => navigate('/roadmap-generator')}
-                         className="mt-6 md:mt-0 relative z-10 px-8 py-4 bg-brand-600 hover:bg-brand-500 text-white font-bold rounded-xl shadow-lg shadow-brand-500/20 hover:scale-105 transition-all flex items-center gap-2 whitespace-nowrap"
-                       >
-                           <Rocket className="w-5 h-5" />
-                           Generate AI Roadmap
-                       </button>
-                       
-                       {/* Decoration */}
-                       <div className="absolute right-0 top-0 bottom-0 w-1/2 bg-gradient-to-l from-brand-500/10 to-transparent pointer-events-none"></div>
-                   </div>
-
-              </div>
-          </div>
+    const { token, user } = useAuth();
+    const navigate = useNavigate();
+    const [data, setData] = useState<RoadmapData | null>(null);
+    const [isLoading, setIsLoading] = useState(true);
+  
+    useEffect(() => {
+      if (token) {
+          // If we have a token, we SHOULD fetch user's active roadmap.
+          // However, if the user hasn't generated one, the backend might return 404 or empty.
+          // We need to handle that gracefully to show the catalog.
+          roadmapService.getRoadmap(token)
+              .then(response => {
+                  if (response && response.found) {
+                      setData(response);
+                  } else {
+                      // Valid token but no roadmap found -> Show Catalog
+                      setData(null);
+                  }
+              })
+              .catch((err) => {
+                  console.error("Failed to fetch roadmap", err);
+                  // On error (e.g. 404 if not found), show catalog
+                  setData(null);
+              })
+              .finally(() => setIsLoading(false));
+      } else {
+          setIsLoading(false);
+      }
+    }, [token]);
+  
+    const handleStartLesson = (courseId: number) => {
+        navigate(`/course/${courseId}`);
+    };
+  
+    const handleMarkComplete = async (index: number) => {
+       if (!data?.data || !token) return;
+       // Optimistic update
+       const newData = { ...data };
+       if (newData.data) {
+           newData.data.current_index = index + 1;
+           setData(newData);
+           await roadmapService.updateProgress(token, newData.data.plan_id, index + 1);
+       }
+    };
+  
+    if (isLoading) {
+      return (
+        <div className="flex items-center justify-center min-h-screen bg-slate-950">
+            <div className="w-10 h-10 border-4 border-brand-500 border-t-transparent rounded-full animate-spin"></div>
+        </div>
       );
-  }
+    }
+  
+    // --- PUBLIC CATALOG VIEW (Show if no user OR (user has no active plan)) ---
+    if (!data?.data) {
+         return (
+            <div className="flex-1 min-h-screen bg-slate-950 relative overflow-hidden flex flex-col items-center py-24 px-4 sm:px-6">
+                 {/* Ambient Background */}
+                 <div className="absolute inset-0 bg-[linear-gradient(to_right,#1e293b_1px,transparent_1px),linear-gradient(to_bottom,#1e293b_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)] opacity-20 pointer-events-none" />
+                 <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[500px] bg-brand-500/10 rounded-full blur-[120px] animate-pulse pointer-events-none"></div>
+  
+                <div className="relative z-10 max-w-7xl w-full text-center">
+                     <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-slate-900/50 border border-slate-700/50 text-slate-300 text-sm font-medium mb-8 backdrop-blur-md animate-in fade-in slide-in-from-bottom-4 duration-700">
+                         <span className="relative flex h-2 w-2">
+                           <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand-400 opacity-75"></span>
+                           <span className="relative inline-flex rounded-full h-2 w-2 bg-brand-500"></span>
+                         </span>
+                         Career Tracks 2025
+                     </div>
+                     
+                     <h1 className="text-5xl md:text-7xl font-black text-transparent bg-clip-text bg-gradient-to-b from-white via-white to-slate-400 mb-6 tracking-tight animate-in fade-in slide-in-from-bottom-5 duration-700 delay-100">
+                         Choose Your Legend
+                     </h1>
+                     <p className="text-slate-400 text-lg md:text-xl mb-20 max-w-2xl mx-auto leading-relaxed animate-in fade-in slide-in-from-bottom-6 duration-700 delay-200">
+                         Select a professional career path to start your journey. Each roadmap is crafted by industry experts and tailored to modern market standards.
+                     </p>
+  
+                     {/* Roadmap Grid */}
+                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 animate-in fade-in slide-in-from-bottom-8 duration-1000 delay-300 text-left">
+                         {PUBLIC_ROADMAPS.map((map) => (
+                             <button 
+                                  key={map.id}
+                                  onClick={() => navigate(`/roadmap/view/${map.id}`)}
+                                  className={`group relative flex flex-col h-full bg-slate-900/40 backdrop-blur-sm border border-slate-800 rounded-3xl p-1 overflow-hidden transition-all duration-300 hover:border-slate-700 hover:shadow-2xl hover:shadow-brand-500/10 hover:-translate-y-1 ${map.border}`}
+                             >
+                                 <div className={`absolute inset-0 bg-gradient-to-br ${map.gradient} opacity-0 group-hover:opacity-100 transition-opacity duration-500`}></div>
+                                 
+                                 <div className="relative z-10 flex flex-col h-full bg-slate-950/50 rounded-[20px] p-6 lg:p-8">
+                                    {/* Header: Icon & Tags */}
+                                    <div className="flex items-start justify-between mb-6">
+                                        <div className={`p-3.5 rounded-2xl bg-slate-900 border border-slate-800 group-hover:scale-110 transition-transform duration-300 shadow-lg ${map.color}`}>
+                                            <map.icon className="w-8 h-8" strokeWidth={1.5} />
+                                        </div>
+                                        <div className="flexflex-col items-end gap-2">
+                                            {map.tags.map(tag => (
+                                                <span key={tag} className="px-2.5 py-1 rounded-md bg-slate-800 border border-slate-700 text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                                                    {tag}
+                                                </span>
+                                            ))}
+                                        </div>
+                                    </div>
+  
+                                    {/* Content */}
+                                    <h3 className="text-2xl font-bold text-white mb-3 group-hover:text-brand-100 transition-colors">{map.title}</h3>
+                                    <p className="text-slate-400 text-sm leading-relaxed mb-8 flex-1">{map.desc}</p>
+  
+                                    {/* Footer: Metadata & Action */}
+                                    <div className="pt-6 border-t border-slate-800/50 flex items-center justify-between mt-auto">
+                                        <div className="text-xs font-medium text-slate-500 flex flex-col gap-1">
+                                            <span className="flex items-center gap-1.5">
+                                                <Trophy className="w-3.5 h-3.5 text-slate-600" />
+                                                {map.level}
+                                            </span>
+                                            <span className="flex items-center gap-1.5">
+                                                <CheckCircle2 className="w-3.5 h-3.5 text-slate-600" />
+                                                {map.duration}
+                                            </span>
+                                        </div>
+                                        
+                                        <div className={`w-10 h-10 rounded-full flex items-center justify-center bg-slate-800 group-hover:bg-brand-600 group-hover:text-white transition-all duration-300 ${map.color} group-hover:text-white`}>
+                                            <ArrowRight className="w-5 h-5 -ml-0.5 group-hover:translate-x-0.5 transition-transform" />
+                                        </div>
+                                    </div>
+                                 </div>
+                             </button>
+                         ))}
+                     </div>
+                     
+                     <div className="mt-24 max-w-4xl mx-auto p-1 rounded-3xl bg-gradient-to-r from-slate-800 via-brand-900/40 to-slate-800 relative overflow-hidden animate-in fade-in slide-in-from-bottom-10 duration-1000 delay-500">
+                         <div className="bg-slate-950/90 backdrop-blur-xl rounded-[20px] p-8 md:p-12 md:flex items-center justify-between gap-8 text-left relative overflow-hidden">
+                             {/* Accents */}
+                             <div className="absolute top-0 right-0 w-64 h-64 bg-brand-500/10 blur-[80px] rounded-full pointer-events-none"></div>
+  
+                             <div className="relative z-10">
+                                 <h3 className="text-3xl font-bold text-white mb-3">Custom AI Learning Path</h3>
+                                 <p className="text-slate-400 text-lg max-w-lg">Don't fit into a box? Tell our AI your exact goals, experience, and timeline. We'll architect a bespoke curriculum just for you.</p>
+                             </div>
+                             <button 
+                               onClick={() => navigate('/roadmap-generator')}
+                               className="mt-8 md:mt-0 relative z-10 px-8 py-4 bg-white text-slate-950 font-bold rounded-xl shadow-xl shadow-brand-900/20 hover:scale-105 hover:bg-brand-50 transition-all flex items-center gap-3 whitespace-nowrap group"
+                             >
+                                 <Sparkles className="w-5 h-5 text-brand-600" />
+                                 <span>Generate With AI</span>
+                                 <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                             </button>
+                         </div>
+                     </div>
+  
+                </div>
+            </div>
+        );
+    }
 
   const { content, current_index, plan_id } = data.data;
   const lessons = content.lessons || [];
