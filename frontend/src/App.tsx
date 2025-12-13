@@ -14,7 +14,9 @@ import { CoursePage } from './features/course/CoursePage';
 import { Dashboard } from './features/dashboard/Dashboard';
 
 import { Onboarding } from './features/onboarding/Onboarding';
+import { RoadmapGenerator } from './features/roadmap-generator/RoadmapGenerator';
 import { Roadmap } from './features/roadmap/Roadmap';
+import { RoadmapDetails } from './features/roadmap/RoadmapDetails';
 import { LearningStudio } from './features/studio/LearningStudio';
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
@@ -92,6 +94,8 @@ export default function App() {
         {/* Public/Hybrid Routes */}
         <Route path="/community" element={<FullPageLayout><Community /></FullPageLayout>} />
         <Route path="/roadmap" element={<FullPageLayout><Roadmap /></FullPageLayout>} />
+        <Route path="/roadmap-generator" element={<FullPageLayout><RoadmapGenerator /></FullPageLayout>} />
+        <Route path="/roadmap/view/:roleId" element={<FullPageLayout><RoadmapDetails /></FullPageLayout>} />
         <Route path="/contact" element={<FullPageLayout><Contact /></FullPageLayout>} />
 
         {/* Fallback */}

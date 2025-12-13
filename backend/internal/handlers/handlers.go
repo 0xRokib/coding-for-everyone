@@ -27,10 +27,6 @@ func NewHandler(ai *services.AIService, db *store.Store, cfg *config.Config) *Ha
 }
 
 func (h *Handler) HandleLessonPlan(w http.ResponseWriter, r *http.Request) {
-	enableCORS(&w)
-	if r.Method == "OPTIONS" {
-		return
-	}
 
 	var req models.LessonPlanRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
@@ -68,10 +64,6 @@ func (h *Handler) HandleLessonPlan(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) HandleChat(w http.ResponseWriter, r *http.Request) {
-	enableCORS(&w)
-	if r.Method == "OPTIONS" {
-		return
-	}
 
 	var req models.ChatRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
@@ -89,10 +81,6 @@ func (h *Handler) HandleChat(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) HandleExecute(w http.ResponseWriter, r *http.Request) {
-	enableCORS(&w)
-	if r.Method == "OPTIONS" {
-		return
-	}
 
 	var req models.ExecuteRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
@@ -111,10 +99,6 @@ func (h *Handler) HandleExecute(w http.ResponseWriter, r *http.Request) {
 
 // HandleMath performs a simple arithmetic operation (addition) on two numbers.
 func (h *Handler) HandleMath(w http.ResponseWriter, r *http.Request) {
-	enableCORS(&w)
-	if r.Method == "OPTIONS" {
-		return
-	}
 
 	var req models.MathRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
@@ -127,10 +111,6 @@ func (h *Handler) HandleMath(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) HandleGetCourses(w http.ResponseWriter, r *http.Request) {
-	enableCORS(&w)
-	if r.Method == "OPTIONS" {
-		return
-	}
 
 	userID, ok := r.Context().Value(middleware.UserIDKey).(int)
 	if !ok {
@@ -173,12 +153,6 @@ func (h *Handler) HandleGetCourses(w http.ResponseWriter, r *http.Request) {
 	}
 
 	json.NewEncoder(w).Encode(courses)
-}
-
-func enableCORS(w *http.ResponseWriter) {
-	(*w).Header().Set("Access-Control-Allow-Origin", "*")
-	(*w).Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
-	(*w).Header().Set("Access-Control-Allow-Headers", "Accept, Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization")
 }
 
 func sendJSONError(w http.ResponseWriter, message string, status int) {

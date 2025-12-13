@@ -21,10 +21,6 @@ func getJWTSecret() []byte {
 }
 
 func (h *Handler) HandleSignup(w http.ResponseWriter, r *http.Request) {
-	enableCORS(&w)
-	if r.Method == "OPTIONS" {
-		return
-	}
 
 	var req models.SignupRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
@@ -73,10 +69,6 @@ func (h *Handler) HandleSignup(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) HandleLogin(w http.ResponseWriter, r *http.Request) {
-	enableCORS(&w)
-	if r.Method == "OPTIONS" {
-		return
-	}
 
 	var req models.LoginRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
@@ -122,10 +114,6 @@ func generateToken(userID int) (string, error) {
 
 // HandleSocialLoginDemo simulates a social login for development/demo purposes
 func (h *Handler) HandleSocialLoginDemo(w http.ResponseWriter, r *http.Request) {
-	enableCORS(&w)
-	if r.Method == "OPTIONS" {
-		return
-	}
 
 	var req struct {
 		Provider string `json:"provider"`

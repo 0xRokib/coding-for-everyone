@@ -124,10 +124,6 @@ body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height
 `
 
 func (h *Handler) HandleContactSubmission(w http.ResponseWriter, r *http.Request) {
-	enableCORS(&w)
-	if r.Method == "OPTIONS" {
-		return
-	}
 
 	if r.Method != "POST" {
 		sendJSONError(w, "Method not allowed", http.StatusMethodNotAllowed)

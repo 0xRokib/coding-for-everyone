@@ -37,5 +37,25 @@ export const roadmapService = {
           },
           body: JSON.stringify({ plan_id: planID, index })
       });
+  },
+
+  generateCustomRoadmap: async (token: string, selections: { role: string, experience: string, goal: string, other?: string }) => {
+    const response = await fetch(`${API_URL}/roadmap/generate`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(selections)
+    });
+    if (!response.ok) throw new Error('Failed to generate roadmap');
+    return response.json();
+  },
+
+  getRoadmapById: async (id: string) => {
+      // Public access
+      const response = await fetch(`${API_URL}/roadmap/view?id=${id}`);
+      if (!response.ok) throw new Error('Failed to fetch roadmap');
+      return response.json();
   }
 };

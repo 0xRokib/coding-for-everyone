@@ -82,6 +82,8 @@ func (s *Store) InitSchema() {
 	}
 	// Try to add user_id column if it doesn't exist (primitive migration)
 	_, _ = s.db.Exec("ALTER TABLE contact_submissions ADD COLUMN user_id INTEGER REFERENCES users(id)")
+	// Try to add current_lesson_index column if it doesn't exist (primitive migration for roadmap)
+	_, _ = s.db.Exec("ALTER TABLE lesson_plans ADD COLUMN current_lesson_index INTEGER DEFAULT 0")
 }
 
 func (s *Store) Ping() error {
@@ -164,6 +166,25 @@ func (s *Store) UpdateLessonProgress(planID int, lessonIndex int) error {
 	}
 	_, err := s.db.Exec("UPDATE lesson_plans SET current_lesson_index = ? WHERE id = ?", lessonIndex, planID)
 	return err
+}
+
+func (s *Store) GetLessonPlanByID(planID int) (*models.LessonPlan, error) {
+	if s.db == nil {
+		return nil, nil
+	}
+	var lp models.LessonPlan
+	err := s.db.QueryRow(`
+		SELECT id, persona, goals, content, current_lesson_index, created_at 
+		FROM lesson_plans 
+		WHERE id = ?`, planID).Scan(&lp.ID, &lp.Persona, &lp.Goals, &lp.Content, &lp.CurrentLessonIndex, &lp.CreatedAt)
+
+	if err == sql.ErrNoRows {
+		return nil, nil
+	}
+	if err != nil {
+		return nil, err
+	}
+	return &lp, nil
 }
 
 func (s *Store) DeleteCourse(userID int, courseID int) error {

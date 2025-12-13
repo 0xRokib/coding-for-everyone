@@ -78,6 +78,9 @@ func main() {
 	// Roadmap
 	http.HandleFunc("/api/roadmap", middleware.AuthMiddleware(h.HandleGetRoadmap))
 	http.HandleFunc("/api/roadmap/progress", middleware.AuthMiddleware(h.HandleUpdateProgress))
+	// New Custom Roadmap Routes
+	http.HandleFunc("/api/roadmap/generate", middleware.AuthMiddleware(h.HandleGenerateCustomRoadmap))
+	http.HandleFunc("/api/roadmap/view", h.HandleGetRoadmapByID) // Public/Hybrid
 
 	// 5. Start Server with CORS
 	log.Println("Backend server running on :8081")
@@ -91,26 +94,22 @@ func main() {
 }
 
 // corsMiddleware adds CORS headers to all responses
+// corsMiddleware adds CORS headers to all responses
 func corsMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// Allow requests from both Vite dev server and other ports
 		origin := r.Header.Get("Origin")
-		allowedOrigins := []string{
-			"http://localhost:3000",
-			"http://localhost:5173",
-			"http://localhost:5174",
-		}
 
-		// Check if origin is in allowed list
-		for _, allowed := range allowedOrigins {
-			if origin == allowed {
-				w.Header().Set("Access-Control-Allow-Origin", origin)
-				break
-			}
+		// For development, we'll be permissive and reflect the origin if it exists
+		if origin != "" {
+			w.Header().Set("Access-Control-Allow-Origin", origin)
+		} else {
+			// Fallback for tools without Origin header (like curl) - though browsers always send it
+			w.Header().Set("Access-Control-Allow-Origin", "*")
 		}
 
 		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
-		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
+		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Title")
 		w.Header().Set("Access-Control-Allow-Credentials", "true")
 
 		// Handle preflight requests

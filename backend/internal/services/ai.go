@@ -279,31 +279,68 @@ func getSystemInstruction(persona string) string {
 	}
 }
 
-// extractJSON extracts JSON from markdown code blocks
+// extractJSON extracts JSON from markdown code blocks or raw text
 func extractJSON(content string) string {
-	// Remove markdown code blocks if present
-	if len(content) > 7 && content[:3] == "```" {
-		// Find the end of the opening ```json or ```
-		start := 0
-		for i := 3; i < len(content); i++ {
-			if content[i] == '\n' {
-				start = i + 1
+	// 1. Try to find markdown code blocks
+	startCode := -1
+	endCode := -1
+
+	// Scan for start of code block
+	for i := 0; i < len(content)-2; i++ {
+		if content[i:i+3] == "```" {
+			startCode = i
+			break
+		}
+	}
+
+	if startCode != -1 {
+		// Find end of code block
+		for i := len(content); i >= startCode+3; i-- {
+			if i >= 3 && content[i-3:i] == "```" {
+				endCode = i - 3
+				// If this is the same backticks as start, keeping searching backwards?
+				// No, searching from end means we find the last closing one.
+				if endCode > startCode {
+					// Found a valid block
+					// We need to skip the "```json" or "```" part at start
+					// Find newline after startCode
+					jsonStart := startCode + 3
+					for j := jsonStart; j < len(content); j++ {
+						if content[j] == '\n' {
+							jsonStart = j + 1
+							break
+						}
+					}
+					// If endCode is valid
+					if endCode > jsonStart {
+						return content[jsonStart:endCode]
+					}
+				}
 				break
 			}
 		}
+	}
 
-		// Find the closing ```
-		end := len(content)
-		for i := len(content) - 1; i >= start; i-- {
-			if i >= 2 && content[i-2:i+1] == "```" {
-				end = i - 2
-				break
-			}
-		}
+	// 2. If no code blocks, look for first '{' and last '}'
+	startBrace := -1
+	endBrace := -1
 
-		if start < end {
-			return content[start:end]
+	for i := 0; i < len(content); i++ {
+		if content[i] == '{' {
+			startBrace = i
+			break
 		}
+	}
+
+	for i := len(content) - 1; i >= 0; i-- {
+		if content[i] == '}' {
+			endBrace = i + 1
+			break
+		}
+	}
+
+	if startBrace != -1 && endBrace != -1 && endBrace > startBrace {
+		return content[startBrace:endBrace]
 	}
 
 	return content
@@ -372,4 +409,88 @@ Return ONLY the body of the email text.`, name, userMessage)
 	}
 
 	return openRouterResp.Choices[0].Message.Content, nil
+}
+
+// GenerateFullRoadmap uses AI to generate a comprehensive roadmap details JSON.
+func (s *AIService) GenerateFullRoadmap(role, experience, goal, otherReqs string) (string, error) {
+	prompt := fmt.Sprintf(`Create a detailed learning roadmap for a "%s" (Experience Level: %s, Goal: %s).
+	Additional Requirements/Context: "%s".
+	
+	Generate a valid JSON object matching this exact structure:
+	{
+		"id": "custom-roadmap",
+		"title": "Custom %s Path",
+		"description": "A personalized roadmap tailored to your %s level and goal to %s.",
+		"sections": [
+			{
+				"title": "Section Title (e.g. Fundamentals)",
+				"topics": [
+					{
+						"title": "Topic Title",
+						"description": "Brief explanation",
+						"priority": "high" OR "medium" OR "low",
+						"technologies": ["Tech1", "Tech2"]
+					}
+				]
+			}
+		]
+	}
+	
+	Ensure:
+	1. 'priority' is strictly one of: "high", "medium", "low".
+	2. The content is comprehensive, covering 5-8 major sections.
+	3. Topics are relevant to 2024/2025 standards.
+	4. Return ONLY the JSON string. Do not use markdown code blocks.`, role, experience, goal, otherReqs, role, experience, goal)
+
+	reqBody := OpenRouterRequest{
+		Model: "google/gemini-flash-1.5",
+		Messages: []OpenRouterMessage{
+			{
+				Role:    "user",
+				Content: prompt,
+			},
+		},
+	}
+
+	jsonData, err := json.Marshal(reqBody)
+	if err != nil {
+		return "", fmt.Errorf("failed to marshal request: %v", err)
+	}
+
+	req, err := http.NewRequest("POST", "https://openrouter.ai/api/v1/chat/completions", bytes.NewBuffer(jsonData))
+	if err != nil {
+		return "", fmt.Errorf("failed to create request: %v", err)
+	}
+
+	req.Header.Set("Authorization", "Bearer "+s.apiKey)
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("HTTP-Referer", "http://localhost:5173")
+	req.Header.Set("X-Title", "Coding For Everyone")
+
+	resp, err := s.client.Do(req)
+	if err != nil {
+		return "", fmt.Errorf("API request failed: %v", err)
+	}
+	defer resp.Body.Close()
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return "", fmt.Errorf("failed to read response: %v", err)
+	}
+
+	var openRouterResp OpenRouterResponse
+	if err := json.Unmarshal(body, &openRouterResp); err != nil {
+		return "", fmt.Errorf("failed to parse response: %v", err)
+	}
+
+	if openRouterResp.Error != nil {
+		return "", fmt.Errorf("OpenRouter API error: %s", openRouterResp.Error.Message)
+	}
+
+	if len(openRouterResp.Choices) == 0 {
+		return "", fmt.Errorf("no response from AI")
+	}
+
+	content := openRouterResp.Choices[0].Message.Content
+	return extractJSON(content), nil
 }

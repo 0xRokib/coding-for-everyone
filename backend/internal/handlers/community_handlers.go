@@ -8,10 +8,6 @@ import (
 )
 
 func (h *Handler) HandleGetPosts(w http.ResponseWriter, r *http.Request) {
-	enableCORS(&w)
-	if r.Method == "OPTIONS" {
-		return
-	}
 
 	topic := r.URL.Query().Get("topic")
 	posts, err := h.dataStore.GetPosts(topic)
@@ -28,10 +24,6 @@ func (h *Handler) HandleGetPosts(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) HandleCreatePost(w http.ResponseWriter, r *http.Request) {
-	enableCORS(&w)
-	if r.Method == "OPTIONS" {
-		return
-	}
 
 	userID, ok := r.Context().Value(middleware.UserIDKey).(int)
 	if !ok {

@@ -1,8 +1,17 @@
-import { CheckCircle2, Lock, Map as MapIcon, Play, Rocket, Trophy, Zap } from 'lucide-react';
+import { ArrowRight, Brain, CheckCircle2, Database, Globe, Layout, Lock, Map as MapIcon, Play, Rocket, Server, Terminal, Trophy, Zap } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { RoadmapData, roadmapService } from '../../services/roadmap.service';
+
+const PUBLIC_ROADMAPS = [
+    { id: 'frontend', title: 'Frontend Developer', icon: Layout, desc: 'Master HTML, CSS, React & Modern UI', color: 'text-brand-400', border: 'hover:border-brand-500/50', bg: 'hover:bg-brand-500/5' },
+    { id: 'backend', title: 'Backend Developer', icon: Server, desc: 'Build robust APIs with Go, Python or Node', color: 'text-purple-400', border: 'hover:border-purple-500/50', bg: 'hover:bg-purple-500/5' },
+    { id: 'fullstack', title: 'Full Stack', icon: Globe, desc: 'The complete package. Build entire apps.', color: 'text-emerald-400', border: 'hover:border-emerald-500/50', bg: 'hover:bg-emerald-500/5' },
+    { id: 'ai-engineer', title: 'AI Engineer', icon: Brain, desc: 'Train models, build LLM apps & agents', color: 'text-rose-400', border: 'hover:border-rose-500/50', bg: 'hover:bg-rose-500/5' },
+    { id: 'devops', title: 'DevOps', icon: Terminal, desc: 'CI/CD, Docker, Kubernetes & Cloud', color: 'text-orange-400', border: 'hover:border-orange-500/50', bg: 'hover:bg-orange-500/5' },
+    { id: 'data-science', title: 'Data Scientist', icon: Database, desc: 'Analyze data, ML algorithms & stats', color: 'text-blue-400', border: 'hover:border-blue-500/50', bg: 'hover:bg-blue-500/5' },
+];
 
 export const Roadmap = () => {
   const { token, user } = useAuth();
@@ -44,28 +53,66 @@ export const Roadmap = () => {
     );
   }
 
+  // --- PUBLIC CATALOG VIEW (Like roadmap.sh) ---
   if (!user || !data?.data) {
        return (
-          <div className="flex-1 flex flex-col items-center justify-center p-8 text-center bg-slate-950 relative overflow-hidden">
+          <div className="flex-1 min-h-screen bg-slate-950 relative overflow-hidden flex flex-col items-center py-20 px-4">
                {/* Ambient Background */}
-               <div className="absolute inset-0 bg-[linear-gradient(to_right,#1e293b_1px,transparent_1px),linear-gradient(to_bottom,#1e293b_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_50%,#000_70%,transparent_100%)] opacity-20" />
-               <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-brand-500/10 rounded-full blur-[100px] animate-pulse"></div>
+               <div className="absolute inset-0 bg-[linear-gradient(to_right,#1e293b_1px,transparent_1px),linear-gradient(to_bottom,#1e293b_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_50%,#000_70%,transparent_100%)] opacity-20 pointer-events-none" />
+               <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-brand-500/10 rounded-full blur-[100px] animate-pulse pointer-events-none"></div>
 
-              <div className="relative z-10 max-w-md">
-                   <div className="w-20 h-20 bg-gradient-to-br from-brand-500 to-purple-500 rounded-3xl flex items-center justify-center mx-auto mb-8 shadow-2xl shadow-brand-500/20 rotate-3">
-                       <MapIcon className="w-10 h-10 text-white" />
+              <div className="relative z-10 max-w-5xl w-full text-center">
+                   <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-brand-500/10 border border-brand-500/20 text-brand-400 text-sm font-bold mb-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
+                       <MapIcon className="w-4 h-4" />
+                       Developer Roadmaps
                    </div>
-                   <h2 className="text-4xl font-black text-white mb-4 tracking-tight">Your Journey Awaits</h2>
-                   <p className="text-slate-400 text-lg mb-8 leading-relaxed">
-                       {user ? "You haven't generated a course roadmap yet. Start your first course to unlock your personalized path." : "Sign in to view your learning roadmap and track your progress."}
+                   
+                   <h1 className="text-4xl md:text-6xl font-black text-white mb-6 tracking-tight animate-in fade-in slide-in-from-bottom-5 duration-700 delay-100">
+                       Find Your Path in Tech
+                   </h1>
+                   <p className="text-slate-400 text-lg md:text-xl mb-16 max-w-2xl mx-auto leading-relaxed animate-in fade-in slide-in-from-bottom-6 duration-700 delay-200">
+                       Step by step guides and paths to learn different tools or technologies. {user ? "Generate your custom path below." : "Sign in to track your progress."}
                    </p>
-                   <button 
-                     onClick={() => navigate(user ? '/onboarding' : '/login')}
-                     className="px-8 py-4 bg-white text-slate-900 font-bold rounded-xl hover:scale-105 transition-transform flex items-center gap-2 mx-auto"
-                   >
-                       <Rocket className="w-5 h-5 text-brand-600" />
-                       {user ? "Generate Roadmap" : "Sign In Now"}
-                   </button>
+
+                   {/* Roadmap Grid */}
+                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 animate-in fade-in slide-in-from-bottom-8 duration-1000 delay-300">
+                       {PUBLIC_ROADMAPS.map((map) => (
+                           <button 
+                                key={map.id}
+                                onClick={() => navigate(`/roadmap/view/${map.id}`)}
+                                className={`group flex flex-col items-start p-6 rounded-2xl bg-slate-900/40 border border-slate-800 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl ${map.border} ${map.bg}`}
+                           >
+                               <div className="flex items-center gap-4 mb-4 w-full">
+                                   <div className={`p-3 rounded-xl bg-slate-900 border border-slate-800 group-hover:scale-110 transition-transform duration-300 ${map.color}`}>
+                                       <map.icon className="w-6 h-6" />
+                                   </div>
+                                   <div className={`ml-auto opacity-0 group-hover:opacity-100 transition-opacity -translate-x-2 group-hover:translate-x-0 duration-300 ${map.color}`}>
+                                       <ArrowRight className="w-5 h-5" />
+                                   </div>
+                               </div>
+                               <h3 className="text-xl font-bold text-white mb-2 group-hover:text-white transition-colors">{map.title}</h3>
+                               <p className="text-sm text-slate-400 text-left line-clamp-2">{map.desc}</p>
+                           </button>
+                       ))}
+                   </div>
+                   
+                   <div className="mt-20 p-8 rounded-3xl bg-gradient-to-r from-slate-900 to-slate-800 border border-slate-700 relative overflow-hidden md:flex items-center justify-between gap-8 text-left animate-in fade-in slide-in-from-bottom-10 duration-1000 delay-500">
+                       <div className="relative z-10">
+                           <h3 className="text-2xl font-bold text-white mb-2">Create a Custom Roadmap</h3>
+                           <p className="text-slate-400 max-w-md">Don't see what you're looking for? Let our AI architect a personalized learning path just for you.</p>
+                       </div>
+                       <button 
+                         onClick={() => navigate('/roadmap-generator')}
+                         className="mt-6 md:mt-0 relative z-10 px-8 py-4 bg-brand-600 hover:bg-brand-500 text-white font-bold rounded-xl shadow-lg shadow-brand-500/20 hover:scale-105 transition-all flex items-center gap-2 whitespace-nowrap"
+                       >
+                           <Rocket className="w-5 h-5" />
+                           Generate AI Roadmap
+                       </button>
+                       
+                       {/* Decoration */}
+                       <div className="absolute right-0 top-0 bottom-0 w-1/2 bg-gradient-to-l from-brand-500/10 to-transparent pointer-events-none"></div>
+                   </div>
+
               </div>
           </div>
       );

@@ -24,8 +24,22 @@ func getJWTSecret() []byte {
 // AuthMiddleware validates the JWT token and adds user_id to context
 func AuthMiddleware(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		// 1. Handle Preflight Options
+		if r.Method == "OPTIONS" {
+			next(w, r)
+			return
+		}
+
+		// 2. Helper to set CORS locally in case we return error before handler
+		setCORS := func() {
+			w.Header().Set("Access-Control-Allow-Origin", "*")
+			w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
+			w.Header().Set("Access-Control-Allow-Headers", "Accept, Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization")
+		}
+
 		authHeader := r.Header.Get("Authorization")
 		if authHeader == "" {
+			setCORS()
 			http.Error(w, "Authorization header required", http.StatusUnauthorized)
 			return
 		}
@@ -36,6 +50,7 @@ func AuthMiddleware(next http.HandlerFunc) http.HandlerFunc {
 		})
 
 		if err != nil || !token.Valid {
+			setCORS()
 			http.Error(w, "Invalid token", http.StatusUnauthorized)
 			return
 		}
@@ -45,6 +60,7 @@ func AuthMiddleware(next http.HandlerFunc) http.HandlerFunc {
 			ctx := context.WithValue(r.Context(), UserIDKey, userID)
 			next(w, r.WithContext(ctx))
 		} else {
+			setCORS()
 			http.Error(w, "Invalid token claims", http.StatusUnauthorized)
 		}
 	}
